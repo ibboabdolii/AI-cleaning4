@@ -1,0 +1,13 @@
+services:
+  api-gateway:
+    build: ../../apps/api-gateway
+    ports:
+      - "${API_GATEWAY_PORT:-8080}:8080"
+  dialog-service:
+    build: ../../apps/dialog-service
+    ports:
+      - "${DIALOG_SERVICE_PORT:-8081}:8081"
+  nlu-service:
+    build: ../../apps/nlu-service
+    ports:
+      - "${NLU_SERVICE_PORT:-8090}:8090"

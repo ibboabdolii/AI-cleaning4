@@ -1,0 +1,9 @@
+{
+  "name": "cleanai-mvp",
+  "private": true,
+  "packageManager": "pnpm@9.0.0",
+  "scripts": {
+    "lint": "echo \"TODO: add lint\"",
+    "test": "echo \"TODO: add tests\""
+  }
+}
