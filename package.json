@@ -1,0 +1,14 @@
+{
+  "name": "cleanai-demo",
+  "private": true,
+  "version": "1.0.0",
+  "description": "CleanAI landing demo with AI chat (Express + vanilla JS)",
+  "main": "server.js",
+  "scripts": {
+    "dev": "node --watch server.js",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
