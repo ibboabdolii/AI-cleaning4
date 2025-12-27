@@ -1,4 +1,4 @@
-﻿{
+{
   "name": "cleanai-mvp",
   "private": true,
   "packageManager": "pnpm@9.0.0",
@@ -6,6 +6,7 @@
     "dev": "pnpm -r dev",
     "build": "pnpm -r build",
     "test": "pnpm -r test",
-    "lint": "echo \"TODO: add lint\""
+    "lint": "echo \"TODO\""
   }
 }
+
