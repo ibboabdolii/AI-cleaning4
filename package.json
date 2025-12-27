@@ -5,6 +5,10 @@
   "scripts": {
     "dev": "pnpm -r dev",
     "build": "pnpm -r build",
-    "test": "pnpm -r test"
+    "test": "pnpm -r test",
+    "vercel-build": "pnpm install --no-frozen-lockfile && pnpm -r build"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
   }
 }
