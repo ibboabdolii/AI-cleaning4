@@ -6,9 +6,34 @@
     "dev": "pnpm -r dev",
     "build": "pnpm -r build",
     "test": "pnpm -r test",
-    "vercel-build": "pnpm install --no-frozen-lockfile && pnpm -r build"
+    "vercel-build": "pnpm install --no-frozen-lockfile && pnpm -r build",
+    "start": "node server.js"
   },
   "dependencies": {
     "express": "^5.2.1"
-  }
+  },
+  "version": "1.0.0",
+  "description": "Monorepo scaffold: - apps/web (Vite + React + TS) - apps/api-gateway (Node.js + TS) - apps/dialog-service (Node.js + TS) - apps/nlu-service (Python FastAPI) - packages/schemas, packages/shared - infra/docker-compose + scripts - docs (rfc, runbook, api)",
+  "main": "server.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.23",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.18",
+    "vite": "^7.3.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ibboabdolii/AI-cleaning4.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/ibboabdolii/AI-cleaning4/issues"
+  },
+  "homepage": "https://github.com/ibboabdolii/AI-cleaning4#readme"
 }
