@@ -3,11 +3,12 @@
   "private": true,
   "packageManager": "pnpm@9.0.0",
   "scripts": {
-    "dev": "pnpm -r dev",
-    "build": "pnpm -r build",
+    "dev": "vite",
+    "build": "vite build",
     "test": "pnpm -r test",
     "vercel-build": "pnpm install --no-frozen-lockfile && pnpm -r build",
-    "start": "node server.js"
+    "start": "node server.js",
+    "preview": "vite preview"
   },
   "dependencies": {
     "express": "^5.2.1"
