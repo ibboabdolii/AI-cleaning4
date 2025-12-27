@@ -6,36 +6,9 @@
   <title>CleanAI - AI-Powered Cleaning Platform</title>
 
   <!-- Demo-only: Tailwind Play CDN (see README for production build) -->
-  <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles/main.css">
 
-  <style>
-    * { font-family: 'Hanken Grotesk', sans-serif; margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: #282828; color: #ffffff; }
-    .glass-card { background: rgba(10,10,10,0.4); border: 1px solid rgba(255,255,255,0.10); backdrop-filter: blur(12px); border-radius: 0; }
-    .header-bar { background: #2c2c2e; border-bottom: 1px solid rgba(255,255,255,0.08); }
-    .surface-card { background: #363636; border: 1px solid rgba(255,255,255,0.08); border-radius: 0; }
-    .text-muted { color: #B6B6C1; }
-    .btn-primary { background: #ffffff; color: #282828; border: none; transition: all 0.2s ease; border-radius: 0; min-height: 44px; cursor: pointer; }
-    .btn-primary:hover { opacity: 0.9; }
-    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
-    .btn-secondary { background: transparent; color: #ffffff; border: 1px solid rgba(255,255,255,0.2); transition: all 0.2s ease; border-radius: 0; min-height: 44px; cursor: pointer; }
-    .btn-secondary:hover { border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.05); }
-    .nav-active { color: #ffffff; border-bottom: 1px solid #ffffff; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px);} to { opacity: 1; transform: translateY(0);} }
-    .animate { animation: fadeIn 0.4s ease-out; }
-    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 60; align-items: center; justify-content: center; }
-    .modal.active { display: flex; }
-    .success-text { color: #51cf66; font-size: 0.875rem; margin-top: 0.25rem; }
-    .faq-item.open .faq-answer { display: block; }
-    .faq-answer { display: none; }
-    .typing-indicator { display: inline-flex; gap: 4px; padding: 8px 0; }
-    .typing-dot { width: 8px; height: 8px; border-radius: 50%; background: #B6B6C1; animation: typing 1.4s infinite; }
-    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
-    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
-    @keyframes typing { 0%, 60%, 100% { opacity: 0.3; } 30% { opacity: 1; } }
-    .pill { display:inline-flex; align-items:center; gap:.5rem; padding:.35rem .6rem; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.04); font-size:.75rem; color:#B6B6C1; user-select:none; }
-  </style>
 </head>
 
 <body>
