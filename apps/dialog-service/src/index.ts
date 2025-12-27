@@ -1,9 +1,26 @@
-import express from "express";
+import express from 'express';
+import dotenv from 'dotenv';
+import dialogRouter from './routes/dialog';
+import { initRedis } from './session/redis-client';
+
+dotenv.config();
 
 const app = express();
+const PORT = process.env.PORT || 3001;
+
 app.use(express.json());
 
-app.get("/health", (_req, res) => res.json({ ok: true, service: "dialog-service" }));
+app.use('/', dialogRouter);
 
-const port = process.env.PORT ? Number(process.env.PORT) : 8081;
-app.listen(port, () => console.log(`[dialog-service] listening on :${port}`));
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok' });
+});
+
+async function start() {
+  await initRedis();
+  app.listen(PORT, () => {
+    console.log(`Dialog service listening on port ${PORT}`);
+  });
+}
+
+start();

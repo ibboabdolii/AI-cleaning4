@@ -1,13 +1,55 @@
+version: '3.8'
+
 services:
-  api-gateway:
-    build: ../../apps/api-gateway
+  redis:
+    image: redis:7-alpine
     ports:
-      - "${API_GATEWAY_PORT:-8080}:8080"
-  dialog-service:
-    build: ../../apps/dialog-service
-    ports:
-      - "${DIALOG_SERVICE_PORT:-8081}:8081"
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
   nlu-service:
-    build: ../../apps/nlu-service
+    build:
+      context: ../../apps/nlu-service
     ports:
-      - "${NLU_SERVICE_PORT:-8090}:8090"
+      - "8090:8090"
+    environment:
+      - PYTHONUNBUFFERED=1
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8090/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  dialog-service:
+    build:
+      context: ../../apps/dialog-service
+    ports:
+      - "8081:8081"
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - PORT=8081
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  api-gateway:
+    build:
+      context: ../../apps/api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - NLU_SERVICE_URL=http://nlu-service:8090
+      - DIALOG_SERVICE_URL=http://dialog-service:8081
+      - PORT=8080
+    depends_on:
+      - nlu-service
+      - dialog-service
+
+volumes:
+  redis-data:

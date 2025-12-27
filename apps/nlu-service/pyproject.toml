@@ -1,4 +1,12 @@
-[project]
-name = "cleanai-nlu-service"
-version = "0.0.1"
-requires-python = ">=3.11"
+[tool.poetry]
+name = "nlu-service"
+version = "1.0.0"
+description = "NLU service for CleanAI"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.109.0"
+uvicorn = "^0.27.0"
+pydantic = "^2.5.3"
+scikit-learn = "^1.4.0"
+numpy = "^1.26.3"
