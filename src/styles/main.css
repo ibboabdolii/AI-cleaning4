@@ -3,27 +3,67 @@
 @tailwind utilities;
 
 * { font-family: 'Hanken Grotesk', sans-serif; margin: 0; padding: 0; box-sizing: border-box; }
-body { background: #282828; color: #ffffff; }
-.glass-card { background: rgba(10,10,10,0.4); border: 1px solid rgba(255,255,255,0.10); backdrop-filter: blur(12px); border-radius: 0; }
-.header-bar { background: #2c2c2e; border-bottom: 1px solid rgba(255,255,255,0.08); }
-.surface-card { background: #363636; border: 1px solid rgba(255,255,255,0.08); border-radius: 0; }
-.text-muted { color: #B6B6C1; }
-.btn-primary { background: #ffffff; color: #282828; border: none; transition: all 0.2s ease; border-radius: 0; min-height: 44px; cursor: pointer; }
-.btn-primary:hover { opacity: 0.9; }
-.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
-.btn-secondary { background: transparent; color: #ffffff; border: 1px solid rgba(255,255,255,0.2); transition: all 0.2s ease; border-radius: 0; min-height: 44px; cursor: pointer; }
-.btn-secondary:hover { border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.05); }
-.nav-active { color: #ffffff; border-bottom: 1px solid #ffffff; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px);} to { opacity: 1; transform: translateY(0);} }
-.animate { animation: fadeIn 0.4s ease-out; }
-.modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 60; align-items: center; justify-content: center; }
+body { background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); color: #ffffff; }
+
+.glass-card { 
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.1);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  transition: all 0.3s ease;
+}
+.glass-card:hover {
+  background: rgba(255,255,255,0.05);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+}
+
+.header-bar { 
+  background: rgba(44,44,46,0.8);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  backdrop-filter: blur(12px);
+}
+
+.btn-primary { 
+  background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
+  color: #1a1a1a;
+  font-weight: 600;
+  padding: 12px 32px;
+  box-shadow: 0 4px 16px rgba(255,255,255,0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.btn-primary:hover { 
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(255,255,255,0.3);
+}
+
+.btn-secondary {
+  border: 2px solid rgba(255,255,255,0.3);
+  padding: 12px 32px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+.btn-secondary:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.5);
+}
+
+@keyframes fadeIn { 
+  from { opacity: 0; transform: translateY(20px); } 
+  to { opacity: 1; transform: translateY(0); } 
+}
+.animate { animation: fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+
+.text-muted { color: #a0a0a0; }
+.surface-card { background: #2a2a2a; border: 1px solid rgba(255,255,255,0.1); }
+.nav-active { color: #ffffff; border-bottom: 2px solid #ffffff; }
+.modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 60; align-items: center; justify-content: center; }
 .modal.active { display: flex; }
-.success-text { color: #51cf66; font-size: 0.875rem; margin-top: 0.25rem; }
+.success-text { color: #51cf66; }
+.faq-answer { display: none; padding-top: 12px; }
 .faq-item.open .faq-answer { display: block; }
-.faq-answer { display: none; }
-.typing-indicator { display: inline-flex; gap: 4px; padding: 8px 0; }
 .typing-dot { width: 8px; height: 8px; border-radius: 50%; background: #B6B6C1; animation: typing 1.4s infinite; }
 .typing-dot:nth-child(2) { animation-delay: 0.2s; }
 .typing-dot:nth-child(3) { animation-delay: 0.4s; }
 @keyframes typing { 0%, 60%, 100% { opacity: 0.3; } 30% { opacity: 1; } }
-.pill { display:inline-flex; align-items:center; gap:.5rem; padding:.35rem .6rem; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.04); font-size:.75rem; color:#B6B6C1; user-select:none; }
+.pill { display:inline-flex; align-items:center; gap:0.5rem; padding:0.35rem 0.6rem; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.04); font-size:0.75rem; color:#B6B6C1; }
