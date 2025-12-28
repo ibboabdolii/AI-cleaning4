@@ -1,45 +1,159 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CleanAI - AI-Powered Cleaning</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>CleanAI — Premium multi-tenant cleaning platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles/main.css">
 </head>
-<body class="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white">
-  
-  <header class="fixed top-0 w-full bg-gray-900/80 backdrop-blur-lg border-b border-white/10 z-50">
-    <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-      <h1 class="text-2xl font-bold">CleanAI</h1>
-      <button onclick="showModal()" class="bg-white text-black px-6 py-2 rounded-full font-semibold hover:bg-gray-200">
-        Book Now
-      </button>
+<body class="min-h-screen bg-gradient-to-b from-gray-950 via-gray-950 to-black text-white" data-page="landing">
+  <header class="sticky top-0 z-50 border-b border-white/5 bg-gray-900/70 backdrop-blur-xl">
+    <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+      <div class="flex items-center gap-3">
+        <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/10 text-lg font-bold">CAI</div>
+        <div>
+          <p class="text-sm uppercase tracking-[0.2em] text-gray-400">CleanAI</p>
+          <p class="text-sm text-gray-300">Trusted cleaning across Europe</p>
+        </div>
+      </div>
+      <nav class="hidden items-center gap-6 text-sm font-medium text-gray-300 sm:flex">
+        <a class="hover:text-white transition" href="#why">Why CleanAI</a>
+        <a class="hover:text-white transition" href="#flows">Customer</a>
+        <a class="hover:text-white transition" href="#providers">Providers</a>
+      </nav>
+      <div class="flex items-center gap-3">
+        <a class="btn-secondary rounded-full px-4 py-2 text-sm" href="/login.html">Log in</a>
+        <a class="btn-primary rounded-full px-4 py-2 text-sm" href="/register.html">Get started</a>
+      </div>
     </div>
   </header>
 
-  <main class="pt-32 pb-20 px-6">
-    <div class="max-w-4xl mx-auto text-center">
-      <h2 class="text-6xl font-bold mb-6">AI-Powered Cleaning Platform</h2>
-      <p class="text-xl text-gray-400 mb-8">Smart booking across Europe</p>
-      <button onclick="showModal()" class="bg-white text-black px-8 py-3 rounded-full font-semibold text-lg hover:bg-gray-200">
-        Get Started
-      </button>
-    </div>
+  <main class="mx-auto max-w-6xl px-6 pb-20 pt-16 sm:pt-24">
+    <section class="grid gap-8 lg:grid-cols-[2fr,1.2fr]">
+      <div class="space-y-6">
+        <p class="pill animate w-fit">Multi-tenant · Secure · AI-guided</p>
+        <h1 class="text-4xl font-bold leading-tight text-white sm:text-5xl">
+          Book or offer cleaning in minutes with a guided, trustworthy AI experience.
+        </h1>
+        <p class="text-lg text-gray-300">
+          CleanAI pairs structured chat with clear onboarding to keep customers and providers on track.
+          Fast flows, locked-down access, and responsive layouts built for teams on the go.
+        </p>
+        <div class="flex flex-wrap gap-3">
+          <a class="btn-primary rounded-full px-6 py-3 text-sm" href="/register.html">Start as customer</a>
+          <a class="btn-secondary rounded-full px-6 py-3 text-sm" href="/register.html#provider">Become a provider</a>
+        </div>
+        <div class="flex flex-wrap gap-4 text-sm text-gray-400">
+          <div class="flex items-center gap-2">
+            <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
+            <span>Structured booking chat</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="h-2 w-2 rounded-full bg-indigo-400"></span>
+            <span>Provider onboarding wizard</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="h-2 w-2 rounded-full bg-amber-400"></span>
+            <span>RBAC routing guardrails</span>
+          </div>
+        </div>
+      </div>
+      <div class="glass-card rounded-3xl border border-white/10 p-6 shadow-2xl">
+        <div class="flex items-center justify-between border-b border-white/5 pb-4">
+          <div>
+            <p class="text-xs uppercase tracking-[0.2em] text-gray-400">Booking Draft</p>
+            <p class="text-lg font-semibold text-white">Home cleaning · Berlin</p>
+          </div>
+          <span class="rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-300">Live</span>
+        </div>
+        <div class="mt-4 space-y-3 text-sm text-gray-300">
+          <div class="flex items-start justify-between rounded-2xl bg-white/5 px-4 py-3">
+            <div>
+              <p class="text-white">Address</p>
+              <p class="text-gray-400">Weinbergsweg 12, Berlin</p>
+            </div>
+            <span class="pill">Next</span>
+          </div>
+          <div class="flex items-start justify-between rounded-2xl bg-white/5 px-4 py-3">
+            <div>
+              <p class="text-white">Size & frequency</p>
+              <p class="text-gray-400">2 BR · Weekly</p>
+            </div>
+            <span class="pill">AI guided</span>
+          </div>
+          <div class="flex items-start justify-between rounded-2xl bg-white/5 px-4 py-3">
+            <div>
+              <p class="text-white">Schedule</p>
+              <p class="text-gray-400">Tuesday · 9:00</p>
+            </div>
+            <span class="pill">Draft</span>
+          </div>
+        </div>
+        <div class="mt-6 rounded-2xl border border-white/5 bg-gradient-to-br from-gray-900 to-gray-800 p-4">
+          <div class="flex items-center justify-between">
+            <p class="text-sm text-gray-300">Ready to finish?</p>
+            <div class="flex gap-2">
+              <a class="btn-secondary rounded-full px-4 py-2 text-xs" href="/login.html">Resume</a>
+              <a class="btn-primary rounded-full px-4 py-2 text-xs" href="/register.html">Start new</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="why" class="mt-20 grid gap-6 rounded-3xl border border-white/5 bg-white/5 p-6 sm:grid-cols-3 sm:p-8">
+      <div class="space-y-2">
+        <p class="pill">Security</p>
+        <h2 class="text-xl font-semibold">Multi-tenant safe</h2>
+        <p class="text-gray-300 text-sm">RBAC guards keep customer and provider areas separated with guided onboarding.</p>
+      </div>
+      <div class="space-y-2">
+        <p class="pill">Performance</p>
+        <h2 class="text-xl font-semibold">Fast & responsive</h2>
+        <p class="text-gray-300 text-sm">Vite-powered static delivery with minimal dependencies for low latency.</p>
+      </div>
+      <div class="space-y-2">
+        <p class="pill">Clarity</p>
+        <h2 class="text-xl font-semibold">ChatGPT-simple UI</h2>
+        <p class="text-gray-300 text-sm">Structured chat, quick replies, and live booking summaries keep flows deterministic.</p>
+      </div>
+    </section>
+
+    <section id="flows" class="mt-16 grid gap-6 lg:grid-cols-2">
+      <div class="surface-card rounded-3xl p-6">
+        <p class="pill mb-3">Customers</p>
+        <h3 class="text-xl font-semibold text-white">Register → Role → Category → Booking chat</h3>
+        <ul class="mt-4 space-y-2 text-sm text-gray-300">
+          <li>• Login & Register routes with inline validation.</li>
+          <li>• Onboarding gate captures role & cleaning category.</li>
+          <li>• Guided chat captures address, size, frequency, schedule, and extras.</li>
+          <li>• Booking Draft & Quote summary stays visible on desktop, slides in on mobile.</li>
+        </ul>
+        <a class="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-emerald-300 hover:text-emerald-200" href="/register.html">
+          Start customer flow
+          <span aria-hidden="true">→</span>
+        </a>
+      </div>
+      <div id="providers" class="surface-card rounded-3xl p-6">
+        <p class="pill mb-3">Providers</p>
+        <h3 class="text-xl font-semibold text-white">Onboarding wizard with progress</h3>
+        <ul class="mt-4 space-y-2 text-sm text-gray-300">
+          <li>• Basics → Availability → Pricing → Verification → Profile steps.</li>
+          <li>• Progress indicator and save-as-draft data persistence.</li>
+          <li>• Job feed locked behind review, with clear pending CTA.</li>
+          <li>• Secure access: customers cannot see provider routes, and vice versa.</li>
+        </ul>
+        <a class="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-indigo-200 hover:text-indigo-100" href="/register.html#provider">
+          Start provider flow
+          <span aria-hidden="true">→</span>
+        </a>
+      </div>
+    </section>
   </main>
 
-  <div id="modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center">
-    <div class="bg-gray-800 rounded-2xl p-8 max-w-md w-full mx-4 border border-white/10">
-      <h3 class="text-2xl font-bold mb-6">Book Service</h3>
-      <input type="date" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 mb-4">
-      <button onclick="hideModal()" class="w-full bg-white text-black py-3 rounded-lg font-semibold hover:bg-gray-200">
-        Confirm
-      </button>
-    </div>
-  </div>
-
-  <script>
-    function showModal() { document.getElementById('modal').classList.remove('hidden'); }
-    function hideModal() { document.getElementById('modal').classList.add('hidden'); }
-  </script>
+  <script type="module" src="./scripts/app.js"></script>
 </body>
 </html>
