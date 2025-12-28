@@ -1,9 +1,8 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 
 interface Message {
-  role: 'user' | 'assistant';
+  role: 'user' | 'assistant' | 'error';
   content: string;
-  quickActions?: Array<{ text: string; value?: string; action?: string }>;
 }
 
 interface Props {
@@ -11,7 +10,7 @@ interface Props {
   loading: boolean;
 }
 
-export default function ChatWindow({ messages, loading }: Props) {
+export function ChatWindow({ messages, loading }: Props) {
   const endRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -19,43 +18,27 @@ export default function ChatWindow({ messages, loading }: Props) {
   }, [messages]);
 
   return (
-    <div style={{ flex: 1, overflowY: 'auto', padding: '1rem', background: '#fff' }}>
+    <div className="flex-1 overflow-y-auto p-4 space-y-3">
       {messages.map((msg, i) => (
-        <div key={i} style={{ marginBottom: '1rem' }}>
-          <div
-            style={{
-              maxWidth: '70%',
-              marginLeft: msg.role === 'user' ? 'auto' : 0,
-              background: msg.role === 'user' ? '#007bff' : '#e9ecef',
-              color: msg.role === 'user' ? 'white' : 'black',
-              padding: '0.75rem',
-              borderRadius: '8px',
-            }}
-          >
-            {msg.content}
-          </div>
-          {msg.quickActions && (
-            <div style={{ marginTop: '0.5rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-              {msg.quickActions.map((action, j) => (
-                <button
-                  key={j}
-                  style={{
-                    padding: '0.5rem 1rem',
-                    border: '1px solid #ccc',
-                    borderRadius: '20px',
-                    background: 'white',
-                    cursor: 'pointer',
-                  }}
-                >
-                  {action.text}
-                </button>
-              ))}
-            </div>
-          )}
+        <div
+          key={i}
+          className={`p-3 rounded ${
+            msg.role === 'user'
+              ? 'bg-blue-600 ml-auto max-w-[80%]'
+              : msg.role === 'error'
+              ? 'bg-red-600/20 border border-red-600'
+              : 'bg-gray-800 max-w-[80%]'
+          }`}
+        >
+          {msg.content}
         </div>
       ))}
       {loading && (
-        <div style={{ color: '#999', fontStyle: 'italic' }}>Typing...</div>
+        <div className="flex gap-1 p-3 bg-gray-800 rounded max-w-[80%]">
+          <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse" />
+          <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse delay-75" />
+          <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse delay-150" />
+        </div>
       )}
       <div ref={endRef} />
     </div>

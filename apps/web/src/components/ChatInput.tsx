@@ -1,61 +1,47 @@
-import React, { useState } from 'react';
+import { useState, KeyboardEvent } from 'react';
 
 interface Props {
   onSend: (text: string) => void;
   disabled: boolean;
 }
 
-export default function ChatInput({ onSend, disabled }: Props) {
-  const [input, setInput] = useState('');
+export function ChatInput({ onSend, disabled }: Props) {
+  const [text, setText] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (input.trim() && !disabled) {
-      onSend(input);
-      setInput('');
+  const handleSend = () => {
+    if (text.trim() && !disabled) {
+      onSend(text.trim());
+      setText('');
+    }
+  };
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
     }
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      style={{
-        padding: '1rem',
-        background: '#fff',
-        borderTop: '1px solid #e0e0e0',
-        display: 'flex',
-        gap: '0.5rem',
-      }}
-    >
-      <input
-        type="text"
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-        placeholder="Type a message..."
-        disabled={disabled}
-        style={{
-          flex: 1,
-          padding: '0.75rem',
-          border: '1px solid #ccc',
-          borderRadius: '4px',
-          fontSize: '1rem',
-        }}
-      />
-      <button
-        type="submit"
-        disabled={disabled || !input.trim()}
-        style={{
-          padding: '0.75rem 1.5rem',
-          background: '#007bff',
-          color: 'white',
-          border: 'none',
-          borderRadius: '4px',
-          cursor: disabled ? 'not-allowed' : 'pointer',
-          fontSize: '1rem',
-        }}
-      >
-        Send
-      </button>
-    </form>
+    <div className="p-4 border-t border-white/10">
+      <div className="flex gap-2">
+        <input
+          type="text"
+          value={text}
+          onChange={e => setText(e.target.value)}
+          onKeyDown={handleKeyDown}
+          disabled={disabled}
+          placeholder="Type your message..."
+          className="flex-1 bg-gray-800 rounded px-4 py-2 outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <button
+          onClick={handleSend}
+          disabled={disabled || !text.trim()}
+          className="px-6 py-2 bg-blue-600 rounded hover:bg-blue-700 disabled:opacity-50"
+        >
+          Send
+        </button>
+      </div>
+    </div>
   );
 }
