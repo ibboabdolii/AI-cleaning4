@@ -43,7 +43,7 @@ export function LanguageSelector() {
                 <span className="tile-title">{option.label}</span>
                 <span className="tile-subtitle">{option.subtitle}</span>
               </span>
-              <span className="tile-check" aria-hidden="true">✓</span>
+              <span className="tile-check" aria-hidden="true" />
             </button>
           ))}
         </div>

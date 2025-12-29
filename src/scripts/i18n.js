@@ -124,7 +124,7 @@ function buildLanguageOption({ code, label }) {
       <span class="tile-title">${label}</span>
       <span class="tile-subtitle">${subtitle}</span>
     </span>
-    <span class="tile-check" aria-hidden="true">✓</span>
+    <span class="tile-check" aria-hidden="true"></span>
   `;
   button.dataset.lang = code;
   if (code === currentLanguage) {
