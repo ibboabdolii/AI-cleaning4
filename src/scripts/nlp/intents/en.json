@@ -12,5 +12,8 @@
   "how much": "quote.request",
   "what's the price": "quote.request",
   "price quote": "quote.request",
-  "need a quote": "quote.request"
+  "need a quote": "quote.request",
+  "hi": "greet",
+  "hello": "greet",
+  "hey": "greet"
 }

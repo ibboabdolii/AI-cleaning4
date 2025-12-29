@@ -12,5 +12,8 @@
   "wie viel": "quote.request",
   "was kostet": "quote.request",
   "preisangebot": "quote.request",
-  "brauche ein angebot": "quote.request"
+  "brauche ein angebot": "quote.request",
+  "hallo": "greet",
+  "hi": "greet",
+  "hey": "greet"
 }

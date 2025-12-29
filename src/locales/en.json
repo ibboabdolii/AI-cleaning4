@@ -253,6 +253,7 @@
   "chat.intent.bookingCancel": "I’ll guide a cancellation on this draft.",
   "chat.intent.quoteRequest": "Here is a quick price and duration snapshot.",
   "chat.intent.support": "I’ll log your concern and keep support in the loop.",
+  "chat.intent.greet": "Hi there! I can start or update your booking. What do you need?",
   "chat.intent.generic": "Got it — handling that now.",
 
   "status.na": "N/A",

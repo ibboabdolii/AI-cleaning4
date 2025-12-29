@@ -12,5 +12,8 @@
   "hur mycket": "quote.request",
   "vad kostar": "quote.request",
   "prisoffert": "quote.request",
-  "behöver en offert": "quote.request"
+  "behöver en offert": "quote.request",
+  "hej": "greet",
+  "hej hej": "greet",
+  "tjena": "greet"
 }

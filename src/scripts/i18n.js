@@ -1,8 +1,8 @@
 const localeFiles = {
-  en: '/locales/en.json',
-  se: '/locales/se.json',
-  de: '/locales/de.json',
-  es: '/locales/es.json'
+  en: new URL('../locales/en.json', import.meta.url).href,
+  se: new URL('../locales/se.json', import.meta.url).href,
+  de: new URL('../locales/de.json', import.meta.url).href,
+  es: new URL('../locales/es.json', import.meta.url).href
 };
 
 const languageMeta = {
@@ -35,7 +35,8 @@ async function loadLocale(lang) {
 function t(key, fallback = '') {
   if (Object.prototype.hasOwnProperty.call(translations, key)) return translations[key];
   if (Object.prototype.hasOwnProperty.call(fallbackTranslations, key)) return fallbackTranslations[key];
-  return fallback || key;
+  if (fallback) return fallback;
+  return key;
 }
 
 function formatWithLocale(date, lang = currentLanguage, options = {}) {
@@ -49,10 +50,15 @@ function getStoredLanguage() {
 
 async function setLanguage(lang, persist = true) {
   const target = localeFiles[lang] ? lang : 'en';
-  translations = await loadLocale(target);
+  const loaded = await loadLocale(target);
+  translations = loaded && Object.keys(loaded).length ? loaded : {};
   currentLanguage = target;
-  if (!Object.keys(fallbackTranslations).length) {
-    fallbackTranslations = target === 'en' ? translations : await loadLocale('en');
+  if (!Object.keys(fallbackTranslations).length || !fallbackTranslations['app.brand']) {
+    const english = await loadLocale('en');
+    fallbackTranslations = english || {};
+  }
+  if (!Object.keys(translations).length) {
+    translations = fallbackTranslations;
   }
   if (persist) localStorage.setItem(languageKey, target);
   document.documentElement.lang = languageMeta[target]?.locale || 'en';

@@ -252,6 +252,7 @@
   "chat.intent.bookingCancel": "Ich leite eine Stornierung für diesen Entwurf ein.",
   "chat.intent.quoteRequest": "Hier ein schneller Preis- und Dauerblick.",
   "chat.intent.support": "Ich notiere dein Anliegen und informiere den Support.",
+  "chat.intent.greet": "Hallo! Ich kann deine Buchung starten oder aktualisieren. Wobei soll ich helfen?",
   "chat.intent.generic": "Verstanden — ich kümmere mich darum.",
 
   "status.na": "k. A.",

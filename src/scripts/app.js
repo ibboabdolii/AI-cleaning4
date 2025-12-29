@@ -455,7 +455,10 @@ function startGuidedChat() {
       renderDraftPanels(draft);
       input.value = '';
 
-      const detected = detectIntent(message, getCurrentLanguage());
+      const language = getCurrentLanguage();
+      console.log('[chat] user message', { message, language });
+      const detected = detectIntent(message, language);
+      if (detected) console.log('[chat] intent detected', detected);
       if (detected) {
         handleLocalIntent(detected);
         setComposerPending(false);
@@ -606,9 +609,11 @@ function handleLocalIntent(detected) {
     'booking.create': t('chat.intent.bookingCreate', 'Starting your booking details now.'),
     'booking.cancel': t('chat.intent.bookingCancel', 'I’ll guide a cancellation on this draft.'),
     'quote.request': t('chat.intent.quoteRequest', 'Here is a quick price and duration snapshot.'),
-    'support.complaint': t('chat.intent.support', 'I’ll log your concern and keep support in the loop.')
+    'support.complaint': t('chat.intent.support', 'I’ll log your concern and keep support in the loop.'),
+    greet: t('chat.intent.greet', 'Hi there! I can start or update your booking. What do you need?')
   };
 
+  console.log('[chat] handling local intent', intent, detected.match, detected.language);
   appendIntentFeedback(intentMessages[intent] || t('chat.intent.generic', 'Got it — handling that now.'));
 
   if (intent === 'booking.create' && !chatState.started) {
@@ -626,6 +631,10 @@ function handleLocalIntent(detected) {
     appendAssistant(
       `<strong>${t('booking.summary.price', 'Price estimate:')}</strong> €${estimate.price} · ${estimate.durationLabel}<br>${t('booking.frequency.standard', 'standard rate')}`
     );
+  }
+
+  if (intent === 'greet' && !chatState.started) {
+    startGuidedChat();
   }
 }
 

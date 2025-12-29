@@ -252,6 +252,7 @@
   "chat.intent.bookingCancel": "Te guiaré para cancelar este borrador.",
   "chat.intent.quoteRequest": "Aquí tienes un vistazo rápido de precio y duración.",
   "chat.intent.support": "Registraré tu problema e informaré al soporte.",
+  "chat.intent.greet": "¡Hola! Puedo iniciar o actualizar tu reserva. ¿Qué necesitas?",
   "chat.intent.generic": "Entendido — lo gestiono ahora.",
 
   "status.na": "N/D",

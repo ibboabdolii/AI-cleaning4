@@ -252,6 +252,7 @@
   "chat.intent.bookingCancel": "Jag guidar en avbokning av detta utkast.",
   "chat.intent.quoteRequest": "Här är en snabb pris- och tidsbild.",
   "chat.intent.support": "Jag loggar ditt ärende och håller support informerad.",
+  "chat.intent.greet": "Hej! Jag kan starta eller uppdatera din bokning. Vad behöver du?",
   "chat.intent.generic": "Uppfattat — hanterar det nu.",
 
   "status.na": "Ej tillämpligt",
