@@ -1,16 +1,29 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CleanAI — Premium multi-tenant cleaning platform</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <script>
+    (() => {
+      try {
+        const stored = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const theme = stored === 'dark' || stored === 'light' ? stored : prefersDark ? 'dark' : 'light';
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme === 'dark' ? 'dark' : 'light';
+      } catch (error) {
+        document.documentElement.dataset.theme = 'light';
+      }
+    })();
+  </script>
   <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./styles/main.css">
 </head>
-<body class="min-h-screen bg-gradient-to-b from-gray-950 via-gray-950 to-black text-white" data-page="landing">
-  <header class="sticky top-0 z-50 border-b border-white/5 bg-gray-900/70 backdrop-blur-xl">
+<body class="min-h-screen theme-body" data-page="landing">
+  <header class="header-bar sticky top-0 z-50 border-b border-white/5 bg-gray-900/70 backdrop-blur-xl">
     <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
       <div class="flex items-center gap-3">
         <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/10 text-lg font-bold">CAI</div>
@@ -25,6 +38,10 @@
         <a class="nav-link hover:text-white transition" href="#providers" data-i18n="nav.providers">Providers</a>
       </nav>
       <div class="flex items-center gap-3">
+        <button type="button" class="icon-button" data-theme-toggle aria-pressed="false" aria-label="Toggle theme">
+          <span class="theme-toggle__icon" aria-hidden="true">☀️</span>
+          <span class="theme-toggle__label text-sm font-semibold">Light</span>
+        </button>
         <button id="language-launcher" type="button" class="rounded-full border border-white/10 px-4 py-2 text-sm text-gray-200 transition hover:border-white/30 hover:text-white" data-i18n="language.switch">Language</button>
         <a class="btn-secondary rounded-full px-4 py-2 text-sm" href="/login.html" data-i18n="nav.login">Log in</a>
         <a class="btn-primary rounded-full px-4 py-2 text-sm" href="/register.html" data-i18n="nav.start">Get started</a>

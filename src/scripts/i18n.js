@@ -6,10 +6,10 @@ const localeFiles = {
 };
 
 const languageMeta = {
-  en: { label: 'English', locale: 'en-US' },
-  se: { label: 'Svenska', locale: 'sv-SE' },
-  de: { label: 'Deutsch', locale: 'de-DE' },
-  es: { label: 'Español', locale: 'es-ES' }
+  en: { label: 'English', locale: 'en-US', native: 'English', flag: '🇬🇧' },
+  se: { label: 'Svenska', locale: 'sv-SE', native: 'Swedish', flag: '🇸🇪' },
+  de: { label: 'Deutsch', locale: 'de-DE', native: 'Deutsch', flag: '🇩🇪' },
+  es: { label: 'Español', locale: 'es-ES', native: 'Español', flag: '🇪🇸' }
 };
 
 const languageKey = 'lang';
@@ -113,14 +113,32 @@ function onLanguageChange(cb) {
 }
 
 function buildLanguageOption({ code, label }) {
+  const meta = languageMeta[code] || {};
   const button = document.createElement('button');
   button.type = 'button';
   button.className = 'language-option';
-  button.textContent = label;
+  const subtitle = meta.native ? `${meta.native} · ${meta.locale || ''}` : meta.locale || 'Interface';
+  button.innerHTML = `
+    <span class="tile-left" aria-hidden="true">${meta.flag || '🌐'}</span>
+    <span class="tile-body">
+      <span class="tile-title">${label}</span>
+      <span class="tile-subtitle">${subtitle}</span>
+    </span>
+    <span class="tile-check" aria-hidden="true">✓</span>
+  `;
   button.dataset.lang = code;
+  if (code === currentLanguage) {
+    button.classList.add('active');
+    button.setAttribute('aria-pressed', 'true');
+  } else {
+    button.setAttribute('aria-pressed', 'false');
+  }
   button.addEventListener('click', async () => {
+    document.querySelectorAll('.language-option').forEach((el) => {
+      el.classList.toggle('active', el === button);
+      el.setAttribute('aria-pressed', el === button ? 'true' : 'false');
+    });
     await setLanguage(code);
-    closeSelector();
   });
   return button;
 }

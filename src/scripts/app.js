@@ -2,6 +2,9 @@ import { initI18n, t, onLanguageChange, openLanguageSelector, getCurrentLanguage
 import { requestLocationAutofill, attachLandingLocationAutofill } from './useLocationAutofill.ts';
 import { detectIntent } from './nlp/intentEngine.ts';
 import { getGuidedPrompt, shouldStayInFlow } from './dialog/flowManager.ts';
+import { bindThemeToggle, initTheme } from './theme.js';
+
+initTheme();
 import faqEn from '../data/faq.en.json';
 import faqSv from '../data/faq.sv.json';
 import faqDe from '../data/faq.de.json';
@@ -1350,6 +1353,7 @@ function refreshLanguage(page) {
 document.addEventListener('DOMContentLoaded', async () => {
   const page = document.body.dataset.page;
   await initI18n();
+  bindThemeToggle();
   bindLanguageLauncher();
   initNavLinks();
   switch (page) {
