@@ -1,19 +1,8 @@
 {
-  "book a cleaning": "booking.create",
-  "book cleaning": "booking.create",
-  "start booking": "booking.create",
-  "schedule cleaning": "booking.create",
-  "cancel my order": "booking.cancel",
-  "cancel booking": "booking.cancel",
-  "stop my booking": "booking.cancel",
-  "file complaint": "support.complaint",
-  "not happy": "support.complaint",
-  "problem with service": "support.complaint",
-  "how much": "quote.request",
-  "what's the price": "quote.request",
-  "price quote": "quote.request",
-  "need a quote": "quote.request",
-  "hi": "greet",
-  "hello": "greet",
-  "hey": "greet"
+  "can i cancel my booking": "faq.cancel_policy",
+  "how much does it cost": "faq.pricing",
+  "can you help me": "general.help",
+  "how to reschedule": "faq.reschedule",
+  "do you offer refunds": "faq.refund",
+  "what areas do you cover": "faq.coverage"
 }

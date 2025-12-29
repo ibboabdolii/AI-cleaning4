@@ -1,6 +1,7 @@
 import { initI18n, t, onLanguageChange, openLanguageSelector, getCurrentLanguage, formatWithLocale, applyTranslations } from './i18n.js';
 import { requestLocationAutofill, attachLandingLocationAutofill } from './useLocationAutofill.ts';
 import { detectIntent } from './nlp/intentEngine.ts';
+import { getGuidedPrompt, shouldStayInFlow } from './dialog/flowManager.ts';
 
 const storageKeys = {
   user: 'cleanai_user',
@@ -604,6 +605,20 @@ function appendIntentFeedback(message) {
   stream.scrollTop = stream.scrollHeight;
 }
 
+async function handleFaqIntent(intent, language) {
+  try {
+    const faqModule = await import(`./faq/${language}.json`);
+    const fallback = language !== 'en' ? await import('./faq/en.json') : null;
+    const answer = faqModule?.default?.[intent] || fallback?.default?.[intent];
+    clearTypingIndicator();
+    appendAssistant(answer || t('chat.intent.generic', 'Got it — handling that now.'));
+  } catch (error) {
+    console.warn('faq intent load error', error);
+    clearTypingIndicator();
+    appendAssistant(t('chat.intent.generic', 'Got it — handling that now.'));
+  }
+}
+
 function appendUser(message) {
   const stream = document.getElementById('chat-stream');
   if (!stream) return;
@@ -626,6 +641,12 @@ function handleLocalIntent(detected) {
 
   console.log('[chat] handling local intent', intent, detected.match, detected.language);
   appendIntentFeedback(intentMessages[intent] || t('chat.intent.generic', 'Got it — handling that now.'));
+
+  if (intent.startsWith('faq.')) {
+    showTypingIndicator();
+    handleFaqIntent(intent, detected.language);
+    return;
+  }
 
   if (intent === 'booking.create' && !chatState.started) {
     startGuidedChat();
