@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CleanAI — Booking chat</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles/main.css">
+</head>
+<body class="bg-gray-950 text-white" data-page="book">
+  <div class="flex min-h-screen">
+    <aside class="hidden w-64 flex-shrink-0 flex-col gap-4 border-r border-white/5 bg-gray-900/70 px-4 py-6 lg:flex">
+      <div class="flex items-center gap-3">
+        <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/10 text-lg font-bold">CAI</div>
+        <div>
+          <p class="text-sm uppercase tracking-[0.2em] text-gray-400">CleanAI</p>
+          <p class="text-sm text-gray-300">Customer area</p>
+        </div>
+      </div>
+      <nav class="space-y-1 text-sm font-semibold text-gray-300">
+        <a class="nav-link" href="/book.html">Booking chat</a>
+        <a class="nav-link" href="/onboarding.html">Onboarding</a>
+        <button id="logout" class="nav-link flex w-full items-center gap-2 text-left">Logout</button>
+      </nav>
+      <div class="rounded-2xl border border-white/10 bg-white/5 p-4 text-xs text-gray-300">
+        <p class="font-semibold text-white">Access control</p>
+        <p class="mt-1">Customers stay in customer routes. Provider areas remain locked.</p>
+      </div>
+    </aside>
+
+    <main class="flex-1">
+      <header class="sticky top-0 z-40 border-b border-white/5 bg-gray-950/80 backdrop-blur-xl">
+        <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
+          <div>
+            <p class="text-xs uppercase tracking-[0.2em] text-gray-400">Booking</p>
+            <h1 class="text-xl font-semibold">Chat-first cleaning request</h1>
+            <p id="booking-subtitle" class="text-sm text-gray-400"></p>
+          </div>
+          <div class="flex items-center gap-3">
+            <button class="rounded-full border border-white/10 px-4 py-2 text-sm text-gray-300 hover:border-white/30 hover:text-white lg:hidden" id="toggle-summary">Summary</button>
+            <span id="customer-category-pill" class="pill hidden">Home</span>
+          </div>
+        </div>
+      </header>
+
+      <div class="mx-auto grid max-w-6xl grid-cols-1 gap-4 px-4 py-6 lg:grid-cols-[minmax(0,2fr)_minmax(320px,0.9fr)]">
+        <section class="rounded-3xl border border-white/10 bg-white/5 p-4 sm:p-6">
+          <div id="chat-stream" class="space-y-4 overflow-auto">
+            <div class="assistant-bubble">
+              <p class="font-semibold text-white">Welcome to CleanAI!</p>
+              <p class="text-sm text-gray-300">We’ll keep this structured—reply with quick chips, and we’ll update your booking draft live.</p>
+            </div>
+          </div>
+          <div class="mt-4 space-y-3">
+            <div id="quick-replies" class="flex flex-wrap gap-2"></div>
+            <form id="chat-input" class="flex items-center gap-2 rounded-2xl border border-white/10 bg-gray-900/70 p-2">
+              <input type="text" id="custom-reply" placeholder="Add a note (optional)" class="flex-1 bg-transparent px-3 py-2 text-sm text-white outline-none" aria-label="Custom note">
+              <button type="submit" class="rounded-xl bg-white/10 px-3 py-2 text-xs font-semibold text-white hover:bg-white/20">Send note</button>
+            </form>
+          </div>
+          <p class="mt-2 text-xs text-gray-400">We’ll also call /api/ai/chat when available and gracefully handle errors.</p>
+        </section>
+
+        <aside id="booking-summary" class="glass-card hidden rounded-3xl border border-white/10 p-4 lg:block">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-xs uppercase tracking-[0.2em] text-gray-400">Booking Draft</p>
+              <p class="text-lg font-semibold text-white">Quote in progress</p>
+            </div>
+            <span id="draft-status" class="pill">Draft</span>
+          </div>
+          <div class="mt-4 space-y-3 text-sm text-gray-300" id="draft-fields"></div>
+          <div class="mt-4 rounded-2xl border border-white/10 bg-gray-900/70 p-4 text-xs text-gray-300">
+            <p class="font-semibold text-white">What’s next?</p>
+            <ul class="mt-2 list-disc list-inside space-y-1">
+              <li>Confirm details and submit the request.</li>
+              <li>We’ll generate a quote summary card in the chat.</li>
+              <li>Need to edit? Tap a field and re-answer the prompt.</li>
+            </ul>
+          </div>
+          <button id="confirm-booking" class="btn-primary mt-4 w-full rounded-2xl py-3 text-sm font-semibold">Submit booking draft</button>
+          <p id="draft-feedback" class="mt-2 text-xs text-emerald-300"></p>
+        </aside>
+      </div>
+    </main>
+  </div>
+
+  <div id="mobile-summary" class="fixed inset-0 z-50 hidden bg-black/70 backdrop-blur-sm lg:hidden">
+    <div class="absolute inset-x-0 bottom-0 rounded-t-3xl border border-white/10 bg-gray-900 p-4 shadow-2xl">
+      <div class="mb-3 flex items-center justify-between">
+        <div>
+          <p class="text-xs uppercase tracking-[0.2em] text-gray-400">Booking Draft</p>
+          <p class="text-lg font-semibold text-white">Quote in progress</p>
+        </div>
+        <button id="close-mobile-summary" class="rounded-full border border-white/10 px-3 py-1 text-xs text-gray-300 hover:border-white/30 hover:text-white">Close</button>
+      </div>
+      <div class="space-y-3 text-sm text-gray-300" id="draft-fields-mobile"></div>
+      <button id="confirm-booking-mobile" class="btn-primary mt-4 w-full rounded-2xl py-3 text-sm font-semibold">Submit booking draft</button>
+      <p id="draft-feedback-mobile" class="mt-2 text-xs text-emerald-300"></p>
+    </div>
+  </div>
+
+  <script type="module" src="./scripts/app.js"></script>
+</body>
+</html>
