@@ -3,6 +3,11 @@ import { resolve } from 'path'
 
 export default defineConfig({
   root: 'src',
+  server: {
+    proxy: {
+      '/api': 'http://localhost:8787'
+    }
+  },
   build: {
     outDir: '../dist',
     emptyOutDir: true,

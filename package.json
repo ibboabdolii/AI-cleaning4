@@ -3,6 +3,8 @@
   "private": true,
   "scripts": {
     "dev": "vite",
+    "dev:api": "node api/dev-server.mjs",
+    "dev:full": "node scripts/dev-full.mjs",
     "build": "vite build",
     "preview": "vite preview"
   },
