@@ -1,0 +1,15 @@
+{
+  "name": "cleanai-web",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "node ../../node_modules/vite/bin/vite.js",
+    "build": "node ../../node_modules/vite/bin/vite.js build",
+    "preview": "node ../../node_modules/vite/bin/vite.js preview"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^5.7.2",
+    "vite": "^5.4.10"
+  }
+}

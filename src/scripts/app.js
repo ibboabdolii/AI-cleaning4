@@ -1,14 +1,25 @@
+/**
+ * @typedef {{ ok: boolean; sessionId: string; message: { role: 'assistant'; text: string }; quickReplies?: { id: string; label: string; value: string }[]; nav?: { label: string; href: string }[]; error?: { code: string; message: string } }} ChatResponse
+ */
+
 const storageKeys = {
   user: 'cleanai_user',
   auth: 'cleanai_auth_token',
   profile: 'cleanai_profile',
-  booking: 'cleanai_booking_draft'
+  booking: 'cleanai_booking_draft',
+  providerWizard: 'cleanai_provider_wizard',
+  chatSession: 'cleanai_chat_session'
 };
 const sessionKeys = {
   rolePreference: 'cleanai_role_pref',
   landingSegment: 'cleanai_landing_segment',
-  landingLocation: 'cleanai_landing_location'
+  landingLocation: 'cleanai_landing_location',
+  sessionAlert: 'cleanai_session_alert'
 };
+
+const TOKEN_TTL_MS = 1000 * 60 * 60 * 8;
+const AUTO_SAVE_DEBOUNCE_MS = 400;
+const demoMode = typeof import.meta !== 'undefined' && Boolean(import.meta.env?.VITE_DEMO_MODE);
 
 const defaultProfile = {
   role: null,
@@ -68,6 +79,76 @@ const chatSteps = [
   }
 ];
 
+function sanitizeText(value) {
+  return String(value ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
+
+function debounce(fn, wait) {
+  let timeoutId;
+  return (...args) => {
+    clearTimeout(timeoutId);
+    timeoutId = window.setTimeout(() => fn(...args), wait);
+  };
+}
+
+/** @param {unknown} payload */
+function isValidChatResponse(payload) {
+  if (!payload || typeof payload !== 'object') return false;
+  const data = /** @type {Record<string, unknown>} */ (payload);
+  const message = /** @type {Record<string, unknown> | undefined} */ (data.message);
+  return (
+    typeof data.ok === 'boolean' &&
+    typeof data.sessionId === 'string' &&
+    message &&
+    message.role === 'assistant' &&
+    typeof message.text === 'string'
+  );
+}
+
+function renderQuickReplies(quickReplies) {
+  const container = document.getElementById('quick-replies');
+  if (!container || !Array.isArray(quickReplies)) return;
+  container.innerHTML = '';
+  quickReplies.forEach((item) => {
+    if (!item || typeof item.label !== 'string') return;
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'quick-reply';
+    button.textContent = item.label;
+    button.addEventListener('click', () => {
+      appendUser(item.value || item.label);
+      safeChatPing(item.value || item.label);
+    });
+    container.appendChild(button);
+  });
+}
+
+function renderNavLinks(nav) {
+  if (!Array.isArray(nav) || !nav.length) return;
+  const stream = document.getElementById('chat-stream');
+  if (!stream) return;
+  const wrapper = document.createElement('div');
+  wrapper.className = 'flex flex-wrap gap-2';
+  nav.forEach((item) => {
+    if (!item || typeof item.label !== 'string' || typeof item.href !== 'string') return;
+    const link = document.createElement('button');
+    link.type = 'button';
+    link.className = 'rounded-full border border-white/20 px-3 py-1 text-xs text-white hover:border-white/40';
+    link.textContent = item.label;
+    link.addEventListener('click', () => {
+      window.location.href = item.href;
+    });
+    wrapper.appendChild(link);
+  });
+  stream.appendChild(wrapper);
+  stream.scrollTop = stream.scrollHeight;
+}
+
 function readJSON(key, fallback) {
   try {
     const raw = localStorage.getItem(key);
@@ -113,12 +194,20 @@ function setBookingDraft(update) {
 
 function setAuthToken() {
   const token = crypto.randomUUID ? crypto.randomUUID() : String(Date.now());
-  localStorage.setItem(storageKeys.auth, token);
-  return token;
+  const auth = { value: token, expiresAt: Date.now() + TOKEN_TTL_MS };
+  localStorage.setItem(storageKeys.auth, JSON.stringify(auth));
+  return auth;
 }
 
 function getAuthToken() {
-  return localStorage.getItem(storageKeys.auth);
+  const auth = readJSON(storageKeys.auth, null);
+  if (!auth) return null;
+  if (auth.expiresAt && Date.now() > auth.expiresAt) {
+    sessionStorage.setItem(sessionKeys.sessionAlert, 'Session expired. Please log in again.');
+    clearSession();
+    return null;
+  }
+  return auth.value;
 }
 
 function clearSession() {
@@ -126,6 +215,8 @@ function clearSession() {
   localStorage.removeItem(storageKeys.user);
   localStorage.removeItem(storageKeys.profile);
   localStorage.removeItem(storageKeys.booking);
+  localStorage.removeItem(storageKeys.providerWizard);
+  localStorage.removeItem(storageKeys.chatSession);
 }
 
 function requireAuth() {
@@ -168,6 +259,27 @@ function showError(target, message) {
   }
 }
 
+function attachErrorBoundary() {
+  const renderError = (message) => {
+    let banner = document.getElementById('app-error-banner');
+    if (!banner) {
+      banner = document.createElement('div');
+      banner.id = 'app-error-banner';
+      banner.className = 'fixed inset-x-0 top-0 z-50 bg-rose-900/80 px-4 py-2 text-sm text-white';
+      document.body.appendChild(banner);
+    }
+    banner.textContent = message;
+  };
+  window.addEventListener('error', (event) => {
+    console.error('App error boundary', event.error || event.message);
+    renderError('Something went wrong. Please refresh and try again.');
+  });
+  window.addEventListener('unhandledrejection', (event) => {
+    console.error('Unhandled promise rejection', event.reason);
+    renderError('Unexpected issue occurred. Please retry your last action.');
+  });
+}
+
 function attachLogout() {
   const logoutButtons = Array.from(document.querySelectorAll('#logout'));
   logoutButtons.forEach((btn) => {
@@ -183,6 +295,11 @@ function initAuthPage(type) {
   const form = document.getElementById(formId);
   const errorTarget = `${type}-error`;
   if (!form) return;
+  const expiredMessage = sessionStorage.getItem(sessionKeys.sessionAlert);
+  if (expiredMessage) {
+    showError(errorTarget, expiredMessage);
+    sessionStorage.removeItem(sessionKeys.sessionAlert);
+  }
 
   if (window.location.hash.includes('provider')) {
     sessionStorage.setItem(sessionKeys.rolePreference, 'provider');
@@ -359,6 +476,12 @@ function setupSummaryToggle() {
   const close = document.getElementById('close-mobile-summary');
   toggle?.addEventListener('click', () => mobileDrawer?.classList.remove('hidden'));
   close?.addEventListener('click', () => mobileDrawer?.classList.add('hidden'));
+  mobileDrawer?.addEventListener('click', (event) => {
+    if (event.target === mobileDrawer) mobileDrawer.classList.add('hidden');
+  });
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') mobileDrawer?.classList.add('hidden');
+  });
 }
 
 let chatState = { step: 0 };
@@ -433,7 +556,9 @@ function appendAssistant(message) {
   if (!stream) return;
   const bubble = document.createElement('div');
   bubble.className = 'assistant-bubble';
-  bubble.innerHTML = `<p>${message}</p>`;
+  const p = document.createElement('p');
+  p.textContent = message;
+  bubble.appendChild(p);
   stream.appendChild(bubble);
   stream.scrollTop = stream.scrollHeight;
 }
@@ -466,10 +591,20 @@ function renderDraftPanels(draftOverride) {
     fields.forEach((field) => {
       const row = document.createElement('div');
       row.className = 'draft-row';
-      row.innerHTML = `<div><p class="text-white">${field.label}</p><p class="text-gray-400">${field.value}</p></div>`;
+      const container = document.createElement('div');
+      const labelEl = document.createElement('p');
+      labelEl.className = 'text-white';
+      labelEl.textContent = field.label;
+      const valueEl = document.createElement('p');
+      valueEl.className = 'text-gray-400';
+      valueEl.textContent = field.value;
+      container.appendChild(labelEl);
+      container.appendChild(valueEl);
+      row.appendChild(container);
       panel.appendChild(row);
     });
   });
+  updateSubmitState(draft);
 }
 
 function injectDraftCard() {
@@ -478,25 +613,70 @@ function injectDraftCard() {
   if (!stream) return;
   const card = document.createElement('div');
   card.className = 'quote-card';
-  card.innerHTML = `
-    <div class="flex items-center justify-between">
-      <div>
-        <p class="text-xs uppercase tracking-[0.2em] text-gray-400">Booking Draft</p>
-        <p class="text-lg font-semibold text-white">${draft.category || 'Cleaning'} quote</p>
-      </div>
-      <span class="pill">Draft</span>
-    </div>
-    <div class="mt-3 space-y-2 text-sm text-gray-300">
-      <p><strong>Address:</strong> ${draft.address || 'Pending'}</p>
-      <p><strong>Size:</strong> ${draft.propertySize || 'Pending'}</p>
-      <p><strong>Frequency:</strong> ${draft.frequency || 'Pending'}</p>
-      <p><strong>Schedule:</strong> ${draft.dateTime || 'Pending'}</p>
-      <p><strong>Extras:</strong> ${draft.extras.length ? draft.extras.join(', ') : 'None'}</p>
-      <p><strong>Notes:</strong> ${draft.notes || '—'}</p>
-    </div>
-  `;
+  const header = document.createElement('div');
+  header.className = 'flex items-center justify-between';
+  const left = document.createElement('div');
+  const badgeTitle = document.createElement('p');
+  badgeTitle.className = 'text-xs uppercase tracking-[0.2em] text-gray-400';
+  badgeTitle.textContent = 'Booking Draft';
+  const quoteTitle = document.createElement('p');
+  quoteTitle.className = 'text-lg font-semibold text-white';
+  quoteTitle.textContent = `${draft.category || 'Cleaning'} quote`;
+  left.appendChild(badgeTitle);
+  left.appendChild(quoteTitle);
+  const statusPill = document.createElement('span');
+  statusPill.className = 'pill';
+  statusPill.textContent = 'Draft';
+  header.appendChild(left);
+  header.appendChild(statusPill);
+
+  const details = document.createElement('div');
+  details.className = 'mt-3 space-y-2 text-sm text-gray-300';
+  const detailRows = [
+    ['Address', draft.address || 'Pending'],
+    ['Size', draft.propertySize || 'Pending'],
+    ['Frequency', draft.frequency || 'Pending'],
+    ['Schedule', draft.dateTime || 'Pending'],
+    ['Extras', draft.extras.length ? draft.extras.join(', ') : 'None'],
+    ['Notes', draft.notes || '—']
+  ];
+  detailRows.forEach(([label, value]) => {
+    const p = document.createElement('p');
+    const strong = document.createElement('strong');
+    strong.textContent = `${label}: `;
+    p.appendChild(strong);
+    p.appendChild(document.createTextNode(value));
+    details.appendChild(p);
+  });
+
+  card.appendChild(header);
+  card.appendChild(details);
   stream.appendChild(card);
   stream.scrollTop = stream.scrollHeight;
+}
+
+function updateSubmitState(draft) {
+  const canSubmit = Boolean(draft.address && draft.propertySize && draft.frequency && draft.dateTime);
+  const submitButtons = [
+    document.getElementById('confirm-booking'),
+    document.getElementById('confirm-booking-mobile')
+  ];
+  submitButtons.forEach((btn) => {
+    if (!btn) return;
+    btn.disabled = !canSubmit;
+    btn.classList.toggle('opacity-50', !canSubmit);
+    btn.classList.toggle('cursor-not-allowed', !canSubmit);
+  });
+  const feedbackEls = [
+    document.getElementById('draft-feedback'),
+    document.getElementById('draft-feedback-mobile')
+  ];
+  const missingMessage = canSubmit ? '' : 'Complete address, size, frequency, and schedule to submit.';
+  feedbackEls.forEach((el) => {
+    if (!el) return;
+    if (el.textContent?.includes('Submitted')) return;
+    el.textContent = missingMessage;
+  });
 }
 
 function initBookingConfirm() {
@@ -520,20 +700,32 @@ function initBookingConfirm() {
   });
 }
 
-async function safeChatPing() {
+async function safeChatPing(text = 'Booking submitted') {
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 4000);
+    const sessionId = readJSON(storageKeys.chatSession, null);
     const response = await fetch('/api/ai/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: 'Booking submitted' }),
+      body: JSON.stringify({
+        sessionId,
+        messages: [{ role: 'user', text }]
+      }),
       signal: controller.signal
     });
     clearTimeout(timeout);
     if (!response.ok) throw new Error(`Status ${response.status}`);
-    await response.json();
-    appendAssistant('AI assistant acknowledged your booking.');
+    const data = await response.json();
+    if (!isValidChatResponse(data)) throw new Error('Invalid response schema');
+    if (!data.ok) {
+      appendAssistant(data.error?.message || 'Assistant unavailable.');
+      return;
+    }
+    saveJSON(storageKeys.chatSession, data.sessionId);
+    appendAssistant(data.message.text);
+    renderQuickReplies(data.quickReplies);
+    renderNavLinks(data.nav);
   } catch (error) {
     console.warn('AI chat error', error);
     appendAssistant('We could not reach the AI right now. Continuing with the guided draft.');
@@ -547,7 +739,8 @@ function initProviderOnboarding() {
 
   const profile = getProfile();
   const steps = ['basics', 'availability', 'pricing', 'verification', 'profile'];
-  let currentStep = 0;
+  const savedWizard = readJSON(storageKeys.providerWizard, { step: 0, data: null });
+  let currentStep = Math.min(Math.max(Number(savedWizard.step) || 0, 0), steps.length - 1);
   const form = document.getElementById('provider-form');
   const progressBar = document.getElementById('provider-progress-bar');
   const progressLabel = document.getElementById('provider-progress-label');
@@ -559,8 +752,18 @@ function initProviderOnboarding() {
   if (providerStatusEl) providerStatusEl.textContent = profile.providerStatus || 'Draft';
   if (providerBadge) providerBadge.textContent = profile.providerStatus || 'Draft';
 
-  restoreProviderForm(profile.providerData || {});
+  restoreProviderForm(savedWizard.data || profile.providerData || {});
   updateStep();
+
+  const autoSave = debounce(() => {
+    const data = collectProviderData(form);
+    saveJSON(storageKeys.providerWizard, { step: currentStep, data });
+    setProfile({ providerData: data });
+    if (providerFeedback) providerFeedback.textContent = 'Saved locally.';
+  }, AUTO_SAVE_DEBOUNCE_MS);
+
+  form?.addEventListener('input', autoSave);
+  form?.addEventListener('change', autoSave);
 
   document.getElementById('prev-step')?.addEventListener('click', () => {
     currentStep = Math.max(0, currentStep - 1);
@@ -581,6 +784,7 @@ function initProviderOnboarding() {
     providerFeedback.textContent = 'Draft saved locally. Resume anytime.';
     providerStatusEl.textContent = 'Draft';
     providerBadge.textContent = 'Draft';
+    saveJSON(storageKeys.providerWizard, { step: currentStep, data });
   });
 
   document.getElementById('submit-provider')?.addEventListener('click', () => {
@@ -589,6 +793,7 @@ function initProviderOnboarding() {
     providerFeedback.textContent = 'Submitted for review. Feed remains locked until approved.';
     providerStatusEl.textContent = 'Pending review';
     providerBadge.textContent = 'Pending';
+    saveJSON(storageKeys.providerWizard, { step: currentStep, data });
   });
 
   function updateStep() {
@@ -599,6 +804,8 @@ function initProviderOnboarding() {
     const progress = Math.round(((currentStep + 1) / steps.length) * 100);
     if (progressBar) progressBar.style.width = `${progress}%`;
     if (progressLabel) progressLabel.textContent = `Step ${currentStep + 1} of ${steps.length}`;
+    const data = collectProviderData(form);
+    saveJSON(storageKeys.providerWizard, { step: currentStep, data });
   }
 
   function restoreProviderForm(data) {
@@ -619,6 +826,7 @@ function initProviderOnboarding() {
   }
 
   function collectProviderData(formEl) {
+    if (!formEl) return getProfile().providerData || {};
     const data = {
       type: formEl.elements['type'].value,
       serviceArea: formEl.elements['serviceArea'].value,
@@ -681,34 +889,63 @@ function initProviderFeed() {
     list.innerHTML = '';
   }
 
-  markApproved?.addEventListener('click', () => {
-    setProfile({ providerStatus: 'approved' });
-    badge.textContent = 'Approved';
-    locked?.classList.add('hidden');
-    renderFeed(list);
-  });
+  if (markApproved && demoMode) {
+    markApproved.addEventListener('click', () => {
+      setProfile({ providerStatus: 'approved' });
+      badge.textContent = 'Approved';
+      locked?.classList.add('hidden');
+      renderFeed(list);
+    });
+  } else if (markApproved) {
+    markApproved.remove();
+  }
 }
 
 function renderFeed(container) {
   if (!container) return;
   container.innerHTML = '';
-  const items = [
-    { title: 'Weekly home clean', location: 'Berlin-Mitte', budget: '€120', start: 'Tue · 09:00' },
-    { title: 'Office refresh', location: 'Amsterdam Zuid', budget: '€220', start: 'Wed · 18:00' },
-    { title: 'Hotel turnover', location: 'Lisbon', budget: '€180', start: 'Fri · 14:00' }
-  ];
+  const items = demoMode
+    ? [
+        { title: 'Weekly home clean', location: 'Berlin-Mitte', budget: '€120', start: 'Tue · 09:00' },
+        { title: 'Office refresh', location: 'Amsterdam Zuid', budget: '€220', start: 'Wed · 18:00' },
+        { title: 'Hotel turnover', location: 'Lisbon', budget: '€180', start: 'Fri · 14:00' }
+      ]
+    : [];
+  if (!items.length) {
+    const note = document.createElement('p');
+    note.className = 'text-sm text-gray-400';
+    note.textContent = 'Feed will populate after approval. No demo data in production mode.';
+    container.appendChild(note);
+    return;
+  }
   items.forEach((item) => {
     const card = document.createElement('div');
     card.className = 'surface-card rounded-2xl p-4 text-sm';
-    card.innerHTML = `
-      <div class="flex items-center justify-between">
-        <p class="text-white font-semibold">${item.title}</p>
-        <span class="pill">${item.budget}</span>
-      </div>
-      <p class="text-gray-300">${item.location}</p>
-      <p class="text-gray-400 text-xs">${item.start}</p>
-      <p class="mt-2 text-emerald-200 text-xs">Visible only after approval</p>
-    `;
+    const header = document.createElement('div');
+    header.className = 'flex items-center justify-between';
+    const title = document.createElement('p');
+    title.className = 'text-white font-semibold';
+    title.textContent = item.title;
+    const pill = document.createElement('span');
+    pill.className = 'pill';
+    pill.textContent = item.budget;
+    header.appendChild(title);
+    header.appendChild(pill);
+
+    const location = document.createElement('p');
+    location.className = 'text-gray-300';
+    location.textContent = item.location;
+    const start = document.createElement('p');
+    start.className = 'text-gray-400 text-xs';
+    start.textContent = item.start;
+    const note = document.createElement('p');
+    note.className = 'mt-2 text-emerald-200 text-xs';
+    note.textContent = 'Visible only after approval';
+
+    card.appendChild(header);
+    card.appendChild(location);
+    card.appendChild(start);
+    card.appendChild(note);
     container.appendChild(card);
   });
 }
@@ -783,6 +1020,7 @@ function initLandingPage() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  attachErrorBoundary();
   const page = document.body.dataset.page;
   initNavLinks();
   switch (page) {
