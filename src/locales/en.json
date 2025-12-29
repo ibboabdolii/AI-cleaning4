@@ -248,6 +248,12 @@
   "chat.api.error": "We could not reach the AI right now. Continuing with the guided draft.",
   "chat.api.retry.title": "Retry AI acknowledgement?",
   "chat.api.retry.cta": "Retry now",
+  "chat.api.error.short": "We could not reach the AI right now. Staying in the guided flow.",
+  "chat.intent.bookingCreate": "Starting your booking details now.",
+  "chat.intent.bookingCancel": "I’ll guide a cancellation on this draft.",
+  "chat.intent.quoteRequest": "Here is a quick price and duration snapshot.",
+  "chat.intent.support": "I’ll log your concern and keep support in the loop.",
+  "chat.intent.generic": "Got it — handling that now.",
 
   "status.na": "N/A",
   "status.captured": "Captured",

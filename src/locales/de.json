@@ -247,6 +247,12 @@
   "chat.api.error": "Wir konnten die AI gerade nicht erreichen. Wir machen geführt weiter.",
   "chat.api.retry.title": "AI-Bestätigung erneut versuchen?",
   "chat.api.retry.cta": "Jetzt versuchen",
+  "chat.api.error.short": "Wir konnten die AI nicht erreichen. Wir bleiben im geführten Ablauf.",
+  "chat.intent.bookingCreate": "Starte jetzt deine Buchungsdetails.",
+  "chat.intent.bookingCancel": "Ich leite eine Stornierung für diesen Entwurf ein.",
+  "chat.intent.quoteRequest": "Hier ein schneller Preis- und Dauerblick.",
+  "chat.intent.support": "Ich notiere dein Anliegen und informiere den Support.",
+  "chat.intent.generic": "Verstanden — ich kümmere mich darum.",
 
   "status.na": "k. A.",
   "status.captured": "Erfasst",

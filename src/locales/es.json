@@ -247,6 +247,12 @@
   "chat.api.error": "No pudimos contactar la IA ahora. Seguimos con la guía.",
   "chat.api.retry.title": "¿Reintentar confirmación de IA?",
   "chat.api.retry.cta": "Reintentar",
+  "chat.api.error.short": "No pudimos contactar la IA. Seguimos en el flujo guiado.",
+  "chat.intent.bookingCreate": "Empezando los detalles de tu reserva ahora.",
+  "chat.intent.bookingCancel": "Te guiaré para cancelar este borrador.",
+  "chat.intent.quoteRequest": "Aquí tienes un vistazo rápido de precio y duración.",
+  "chat.intent.support": "Registraré tu problema e informaré al soporte.",
+  "chat.intent.generic": "Entendido — lo gestiono ahora.",
 
   "status.na": "N/D",
   "status.captured": "Capturado",

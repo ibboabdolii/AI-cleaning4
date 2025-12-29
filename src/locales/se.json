@@ -247,6 +247,12 @@
   "chat.api.error": "Vi nådde inte AI just nu. Vi fortsätter med guiden.",
   "chat.api.retry.title": "Försök AI-bekräftelse igen?",
   "chat.api.retry.cta": "Försök igen",
+  "chat.api.error.short": "Vi nådde inte AI just nu. Vi stannar i den guidande chatten.",
+  "chat.intent.bookingCreate": "Startar dina bokningsdetaljer nu.",
+  "chat.intent.bookingCancel": "Jag guidar en avbokning av detta utkast.",
+  "chat.intent.quoteRequest": "Här är en snabb pris- och tidsbild.",
+  "chat.intent.support": "Jag loggar ditt ärende och håller support informerad.",
+  "chat.intent.generic": "Uppfattat — hanterar det nu.",
 
   "status.na": "Ej tillämpligt",
   "status.captured": "Sparad",

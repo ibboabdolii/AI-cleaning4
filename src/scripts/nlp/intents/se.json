@@ -1,0 +1,16 @@
+{
+  "boka städning": "booking.create",
+  "boka en städning": "booking.create",
+  "starta bokning": "booking.create",
+  "schemalägg städning": "booking.create",
+  "avboka min order": "booking.cancel",
+  "avboka bokning": "booking.cancel",
+  "stoppa min bokning": "booking.cancel",
+  "lämna klagomål": "support.complaint",
+  "inte nöjd": "support.complaint",
+  "problem med tjänsten": "support.complaint",
+  "hur mycket": "quote.request",
+  "vad kostar": "quote.request",
+  "prisoffert": "quote.request",
+  "behöver en offert": "quote.request"
+}

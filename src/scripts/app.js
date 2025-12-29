@@ -1,4 +1,5 @@
 import { initI18n, t, onLanguageChange, openLanguageSelector, getCurrentLanguage, formatWithLocale, applyTranslations } from './i18n.js';
+import { detectIntent } from './nlp/intentEngine.ts';
 
 const storageKeys = {
   user: 'cleanai_user',
@@ -453,12 +454,15 @@ function startGuidedChat() {
       const draft = setBookingDraft({ notes: `${getBookingDraft().notes ? getBookingDraft().notes + ' ' : ''}${message}`.trim() });
       renderDraftPanels(draft);
       input.value = '';
-      showTypingIndicator();
-      setTimeout(() => {
-        clearTypingIndicator();
-        appendAssistant(t('chat.notes.added', 'Noted. I’ve added this to your booking draft.'));
+
+      const detected = detectIntent(message, getCurrentLanguage());
+      if (detected) {
+        handleLocalIntent(detected);
         setComposerPending(false);
-      }, 450);
+        return;
+      }
+
+      sendMessageToAI(message);
     });
   }
 }
@@ -576,6 +580,16 @@ function appendAssistant(message) {
   stream.scrollTop = stream.scrollHeight;
 }
 
+function appendIntentFeedback(message) {
+  const stream = document.getElementById('chat-stream');
+  if (!stream) return;
+  const bubble = document.createElement('div');
+  bubble.className = 'assistant-bubble intent-feedback';
+  bubble.innerHTML = `<p>${message}</p>`;
+  stream.appendChild(bubble);
+  stream.scrollTop = stream.scrollHeight;
+}
+
 function appendUser(message) {
   const stream = document.getElementById('chat-stream');
   if (!stream) return;
@@ -584,6 +598,60 @@ function appendUser(message) {
   bubble.textContent = message;
   stream.appendChild(bubble);
   stream.scrollTop = stream.scrollHeight;
+}
+
+function handleLocalIntent(detected) {
+  const intent = detected.intent;
+  const intentMessages = {
+    'booking.create': t('chat.intent.bookingCreate', 'Starting your booking details now.'),
+    'booking.cancel': t('chat.intent.bookingCancel', 'I’ll guide a cancellation on this draft.'),
+    'quote.request': t('chat.intent.quoteRequest', 'Here is a quick price and duration snapshot.'),
+    'support.complaint': t('chat.intent.support', 'I’ll log your concern and keep support in the loop.')
+  };
+
+  appendIntentFeedback(intentMessages[intent] || t('chat.intent.generic', 'Got it — handling that now.'));
+
+  if (intent === 'booking.create' && !chatState.started) {
+    startGuidedChat();
+  }
+
+  if (intent === 'booking.cancel') {
+    const draft = setBookingDraft({ status: 'cancellation-request' });
+    renderDraftPanels(draft);
+  }
+
+  if (intent === 'quote.request') {
+    const draft = getBookingDraft();
+    const estimate = buildEstimate(draft);
+    appendAssistant(
+      `<strong>${t('booking.summary.price', 'Price estimate:')}</strong> €${estimate.price} · ${estimate.durationLabel}<br>${t('booking.frequency.standard', 'standard rate')}`
+    );
+  }
+}
+
+async function sendMessageToAI(message) {
+  showTypingIndicator();
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 4500);
+    const response = await fetch('/api/ai/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message, lang: getCurrentLanguage() }),
+      signal: controller.signal
+    });
+    clearTimeout(timeout);
+    if (!response.ok) throw new Error(`Status ${response.status}`);
+    const data = await response.json();
+    clearTypingIndicator();
+    appendAssistant(data?.message || t('chat.notes.added', 'Noted. I’ve added this to your booking draft.'));
+  } catch (error) {
+    console.warn('AI chat send error', error);
+    clearTypingIndicator();
+    appendAssistant(t('chat.api.error.short', 'We could not reach the AI right now. Staying in the guided flow.'));
+  } finally {
+    setComposerPending(false);
+  }
 }
 
 function renderDraftPanels(draftOverride) {
