@@ -10,44 +10,87 @@
   <link rel="stylesheet" href="./styles/main.css">
 </head>
 <body class="bg-gray-950 text-white" data-page="provider-feed">
-  <div class="mx-auto flex min-h-screen max-w-6xl flex-col px-6 py-10">
-    <header class="mb-8 flex items-center justify-between">
+  <div class="app-shell">
+    <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
       <div class="flex items-center gap-3">
         <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/10 text-lg font-bold">CAI</div>
         <div>
           <p class="text-sm uppercase tracking-[0.2em] text-gray-400">CleanAI</p>
-          <p class="text-sm text-gray-300">Provider feed</p>
+          <p class="text-sm text-gray-300">Provider workspace</p>
         </div>
       </div>
       <div class="flex items-center gap-3 text-sm text-gray-300">
-        <a class="underline-offset-4 hover:text-white" href="/provider-onboarding.html">Onboarding</a>
-        <button id="logout" class="rounded-full border border-white/10 px-4 py-2 text-gray-300 hover:border-white/30 hover:text-white">Logout</button>
+        <a class="rounded-full border border-white/10 px-4 py-2 transition hover:border-white/30 hover:text-white" href="/provider-onboarding.html">Onboarding</a>
+        <button id="logout" class="rounded-full border border-white/10 px-4 py-2 transition hover:border-white/30 hover:text-white">Logout</button>
       </div>
-    </header>
+    </div>
+  </div>
 
-    <section class="rounded-3xl border border-white/10 bg-white/5 p-6">
-      <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p class="pill w-fit">Job feed</p>
-          <h1 class="text-2xl font-bold text-white">Your opportunities</h1>
-          <p class="text-sm text-gray-300">Feed unlocks after approval. Until then, we keep providers in a pending state.</p>
+  <div class="mx-auto flex min-h-screen max-w-6xl flex-col px-6 py-10">
+    <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <p class="pill w-fit">Cleaner UI shell</p>
+        <h1 class="text-2xl font-bold text-white">Provider dashboard</h1>
+        <p class="text-sm text-gray-300">Profile card, document verification, and job feed placeholders keep structure ready.</p>
+      </div>
+      <span id="feed-status" class="pill">Draft</span>
+    </div>
+
+    <div class="mt-6 grid gap-6 lg:grid-cols-[1.2fr,0.8fr]">
+      <section class="rounded-3xl border border-white/10 bg-white/5 p-6">
+        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p class="pill w-fit">Job feed</p>
+            <h2 class="text-xl font-semibold text-white">Your opportunities</h2>
+            <p class="text-sm text-gray-300">Feed unlocks after approval. Until then, we keep providers in a pending state.</p>
+          </div>
+          <button id="mark-approved" class="btn-secondary rounded-full px-4 py-2 text-xs">Demo: mark approved</button>
         </div>
-        <span id="feed-status" class="pill">Draft</span>
-      </div>
 
-      <div id="feed-locked" class="mt-6 rounded-2xl border border-amber-400/30 bg-amber-500/10 p-4 text-sm text-amber-100">
-        <p class="font-semibold text-white">Pending review</p>
-        <p class="mt-1">Complete onboarding and wait for approval. Customer data stays hidden until approved.</p>
-        <div class="mt-3 flex flex-wrap gap-2">
-          <a class="btn-secondary rounded-full px-4 py-2 text-xs" href="/provider-onboarding.html">Finish onboarding</a>
-          <button id="mark-approved" class="rounded-full border border-white/20 px-4 py-2 text-xs text-white hover:border-white/40">Demo: mark approved</button>
+        <div id="feed-locked" class="mt-6 rounded-2xl border border-amber-400/30 bg-amber-500/10 p-4 text-sm text-amber-100">
+          <p class="font-semibold text-white">Pending review</p>
+          <p class="mt-1">Complete onboarding and wait for approval. Customer data stays hidden until approved.</p>
+          <div class="mt-3 flex flex-wrap gap-2">
+            <a class="btn-secondary rounded-full px-4 py-2 text-xs" href="/provider-onboarding.html">Finish onboarding</a>
+            <p class="text-xs text-amber-200">We will unlock jobs automatically after approval.</p>
+          </div>
         </div>
-      </div>
 
-      <div id="feed-list" class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <!-- populated by JS -->
-      </div>
-    </section>
+        <div id="feed-list" class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-2">
+          <!-- populated by JS -->
+        </div>
+
+        <div class="mt-6 rounded-2xl border border-dashed border-white/15 bg-black/20 p-4 text-sm text-gray-300">
+          <p class="font-semibold text-white">Empty job feed</p>
+          <p class="text-xs text-gray-400">New opportunities appear here after approval. Use onboarding to refine your profile.</p>
+        </div>
+      </section>
+
+      <aside class="space-y-4 rounded-3xl border border-white/10 bg-white/5 p-5">
+        <div class="summary-card p-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-xs uppercase tracking-[0.2em] text-gray-400">Profile</p>
+              <p class="text-lg font-semibold text-white">Provider</p>
+            </div>
+            <span class="badge badge-emerald">Placeholder</span>
+          </div>
+          <p class="mt-2 text-sm text-gray-300">Add availability, categories, and pricing in onboarding. We keep this card ready for live data.</p>
+        </div>
+        <div class="summary-card p-4">
+          <p class="text-sm font-semibold text-white">Document verification</p>
+          <p class="text-xs text-gray-400">Upload placeholder lives in onboarding. We’ll render the latest status here once APIs exist.</p>
+        </div>
+        <div class="summary-card p-4">
+          <p class="text-sm font-semibold text-white">Helpful links</p>
+          <ul class="mt-2 list-disc list-inside text-sm text-gray-300">
+            <li>Job feed unlock instructions</li>
+            <li>Customer-safe guardrails</li>
+            <li>Profile completeness checklist</li>
+          </ul>
+        </div>
+      </aside>
+    </div>
   </div>
 
   <script type="module" src="./scripts/app.js"></script>

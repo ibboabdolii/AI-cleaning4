@@ -349,7 +349,7 @@ function initBookingPage() {
 
   setupSummaryToggle();
   renderDraftPanels();
-  startChatFlow();
+  setupChatExperience();
   initBookingConfirm();
 }
 
@@ -357,37 +357,102 @@ function setupSummaryToggle() {
   const toggle = document.getElementById('toggle-summary');
   const mobileDrawer = document.getElementById('mobile-summary');
   const close = document.getElementById('close-mobile-summary');
-  toggle?.addEventListener('click', () => mobileDrawer?.classList.remove('hidden'));
-  close?.addEventListener('click', () => mobileDrawer?.classList.add('hidden'));
+  toggle?.addEventListener('click', () => {
+    mobileDrawer?.classList.remove('hidden');
+    mobileDrawer?.setAttribute('aria-hidden', 'false');
+  });
+  close?.addEventListener('click', () => {
+    mobileDrawer?.classList.add('hidden');
+    mobileDrawer?.setAttribute('aria-hidden', 'true');
+  });
 }
 
-let chatState = { step: 0 };
+let chatState = { step: 0, started: false, typingNode: null };
 
-function startChatFlow() {
+function setupChatExperience() {
+  const startBtn = document.getElementById('start-booking');
+  const chatRegion = document.getElementById('chat-region');
+  const emptyState = document.getElementById('chat-empty-state');
+  const draft = getBookingDraft();
+  const hasProgress = Boolean(draft.address || draft.propertySize || draft.frequency || draft.dateTime || draft.notes || draft.extras.length);
+
+  if (hasProgress) {
+    startGuidedChat();
+  } else {
+    chatRegion?.classList.add('hidden');
+    emptyState?.classList.remove('hidden');
+  }
+
+  startBtn?.addEventListener('click', () => startGuidedChat());
+}
+
+function startGuidedChat() {
+  const chatRegion = document.getElementById('chat-region');
+  const emptyState = document.getElementById('chat-empty-state');
+  chatState = { step: 0, started: true, typingNode: null };
+  resetChatStream();
+  chatRegion?.classList.remove('hidden');
+  emptyState?.classList.add('hidden');
+  setComposerPending(false);
+
   const user = getUser();
   const name = user?.name || 'there';
-  appendAssistant(`Hi ${name}, let’s book your cleaning. I’ll keep this guided.`);
-  chatState.step = 0;
+  appendAssistant(`<span class="badge">Step 0/${chatSteps.length}</span> Hi ${name}, let’s book your cleaning. I’ll keep this guided.`);
   presentStep();
+
   const form = document.getElementById('chat-input');
-  form?.addEventListener('submit', (event) => {
-    event.preventDefault();
-    const input = document.getElementById('custom-reply');
-    if (!input?.value) return;
-    const message = input.value.trim();
-    if (!message) return;
-    appendUser(message);
-    const draft = setBookingDraft({ notes: `${getBookingDraft().notes ? getBookingDraft().notes + ' ' : ''}${message}`.trim() });
-    renderDraftPanels(draft);
-    input.value = '';
-    appendAssistant('Noted. I’ve added this to your booking draft.');
-  });
+  if (form && !form.dataset.bound) {
+    form.dataset.bound = 'true';
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const input = document.getElementById('custom-reply');
+      if (!input?.value || chatState.typingNode) return;
+      const message = input.value.trim();
+      if (!message) return;
+      setComposerPending(true);
+      appendUser(message);
+      const draft = setBookingDraft({ notes: `${getBookingDraft().notes ? getBookingDraft().notes + ' ' : ''}${message}`.trim() });
+      renderDraftPanels(draft);
+      input.value = '';
+      showTypingIndicator();
+      setTimeout(() => {
+        clearTypingIndicator();
+        appendAssistant('Noted. I’ve added this to your booking draft.');
+        setComposerPending(false);
+      }, 450);
+    });
+  }
+}
+
+function resetChatStream() {
+  const stream = document.getElementById('chat-stream');
+  if (!stream) return;
+  stream.innerHTML = '';
+  const intro = document.createElement('div');
+  intro.className = 'assistant-bubble';
+  intro.innerHTML = `
+    <p class="font-semibold text-white">Welcome to CleanAI!</p>
+    <p class="text-sm text-gray-300">We’ll keep this structured—reply with quick chips, and we’ll update your booking draft live.</p>
+    <div class="action-card mt-3 text-sm text-gray-200">
+      <div class="flex items-center justify-between">
+        <p class="font-semibold text-white">How we keep you on track</p>
+        <span class="badge badge-emerald">Live draft</span>
+      </div>
+      <ul class="mt-2 list-disc list-inside text-gray-200/90">
+        <li>Guided prompts for address, size, cadence, and schedule.</li>
+        <li>Quick replies mirror chip controls for keyboard users.</li>
+        <li>Quote summary updates instantly on the right or in the drawer.</li>
+      </ul>
+    </div>
+  `;
+  stream.appendChild(intro);
 }
 
 function presentStep() {
   const step = chatSteps[chatState.step];
   if (!step) return;
-  appendAssistant(step.prompt);
+  const progressLabel = `Step ${chatState.step + 1}/${chatSteps.length}`;
+  appendAssistant(`<span class="badge">${progressLabel}</span> ${step.prompt}`);
   const replies = document.getElementById('quick-replies');
   replies.innerHTML = '';
   step.options.forEach((option) => {
@@ -414,7 +479,11 @@ function handleStepSelection(step, value) {
   }
   setBookingDraft(nextDraft);
   renderDraftPanels(nextDraft);
-  moveToNextStep();
+  showTypingIndicator();
+  setTimeout(() => {
+    clearTypingIndicator();
+    moveToNextStep();
+  }, 450);
 }
 
 function moveToNextStep() {
@@ -426,6 +495,34 @@ function moveToNextStep() {
     injectDraftCard();
     document.getElementById('quick-replies').innerHTML = '';
   }
+}
+
+function showTypingIndicator() {
+  const stream = document.getElementById('chat-stream');
+  if (!stream) return;
+  clearTypingIndicator();
+  const bubble = document.createElement('div');
+  bubble.className = 'typing-bubble';
+  bubble.innerHTML = `<span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>`;
+  stream.appendChild(bubble);
+  stream.scrollTop = stream.scrollHeight;
+  chatState.typingNode = bubble;
+}
+
+function clearTypingIndicator() {
+  if (chatState.typingNode?.parentNode) {
+    chatState.typingNode.parentNode.removeChild(chatState.typingNode);
+  }
+  chatState.typingNode = null;
+}
+
+function setComposerPending(pending) {
+  const input = document.getElementById('custom-reply');
+  const button = document.getElementById('send-note');
+  const spinner = document.getElementById('send-spinner');
+  if (input) input.disabled = pending;
+  if (button) button.disabled = pending;
+  if (spinner) spinner.classList.toggle('hidden', !pending);
 }
 
 function appendAssistant(message) {
@@ -459,7 +556,11 @@ function renderDraftPanels(draftOverride) {
     { label: 'Extras', value: draft.extras.length ? draft.extras.join(', ') : 'No extras' },
     { label: 'Notes', value: draft.notes || 'Optional notes' }
   ];
-  const panels = [document.getElementById('draft-fields'), document.getElementById('draft-fields-mobile')];
+  const panels = [
+    document.getElementById('draft-fields'),
+    document.getElementById('draft-fields-mobile')
+  ];
+
   panels.forEach((panel) => {
     if (!panel) return;
     panel.innerHTML = '';
@@ -470,12 +571,40 @@ function renderDraftPanels(draftOverride) {
       panel.appendChild(row);
     });
   });
+
+  const estimate = buildEstimate(draft);
+  const estimateTargets = [document.getElementById('summary-estimate'), document.getElementById('summary-estimate-mobile')];
+  estimateTargets.forEach((target) => {
+    if (!target) return;
+    target.innerHTML = `
+      <p><strong>Duration:</strong> ${estimate.durationLabel}</p>
+      <p><strong>Price estimate:</strong> €${estimate.price}</p>
+      <p class="text-xs text-gray-400">Base: ${estimate.baseHours}h x €${estimate.baseRate}/h · Extras: ${estimate.extrasHours}h</p>
+      <p class="text-xs text-gray-400">Repeats: ${estimate.frequencyNote}</p>
+    `;
+  });
+
+  const policies = document.getElementById('summary-policies');
+  if (policies) {
+    policies.innerHTML = `
+      <p>Arrival window: ${draft.dateTime || 'Set during chat'}.</p>
+      <p>Change anytime; a CleanAI coordinator confirms before charging.</p>
+      <p>We pair you with verified cleaners. Reschedule up to 24h in advance.</p>
+    `;
+  }
+
+  const segment = document.getElementById('summary-segment');
+  if (segment) segment.textContent = draft.category ? `${draft.category} segment` : 'Segment pending';
+
+  const status = document.getElementById('draft-status');
+  if (status) status.textContent = draft.status === 'submitted' ? 'Submitted' : 'Draft';
 }
 
 function injectDraftCard() {
   const stream = document.getElementById('chat-stream');
   const draft = getBookingDraft();
   if (!stream) return;
+  const estimate = buildEstimate(draft);
   const card = document.createElement('div');
   card.className = 'quote-card';
   card.innerHTML = `
@@ -494,9 +623,56 @@ function injectDraftCard() {
       <p><strong>Extras:</strong> ${draft.extras.length ? draft.extras.join(', ') : 'None'}</p>
       <p><strong>Notes:</strong> ${draft.notes || '—'}</p>
     </div>
+    <div class="mt-3 grid grid-cols-1 gap-2 rounded-xl bg-black/20 p-3 text-sm text-gray-200 sm:grid-cols-2">
+      <div>
+        <p class="text-xs uppercase tracking-[0.2em] text-gray-400">Duration</p>
+        <p class="font-semibold text-white">${estimate.durationLabel}</p>
+      </div>
+      <div>
+        <p class="text-xs uppercase tracking-[0.2em] text-gray-400">Est. price</p>
+        <p class="font-semibold text-white">€${estimate.price}</p>
+        <p class="text-xs text-gray-400">${estimate.frequencyNote}</p>
+      </div>
+    </div>
+    <div class="action-card mt-3 text-sm text-gray-200">
+      <p class="font-semibold text-white">Next steps</p>
+      <ul class="mt-1 list-disc list-inside text-gray-200/80">
+        <li>Review the summary card on the right or open the drawer on mobile.</li>
+        <li>Tap Submit to send the draft. We’ll ping the AI endpoint if reachable.</li>
+      </ul>
+    </div>
   `;
   stream.appendChild(card);
   stream.scrollTop = stream.scrollHeight;
+}
+
+function buildEstimate(draft) {
+  const sizeHours = {
+    'Studio or 1 bedroom': 2,
+    '2-3 bedrooms': 3,
+    '4+ bedrooms / large office': 4,
+    'Over 200 sqm': 5
+  };
+  const baseHours = sizeHours[draft.propertySize] || 2;
+  const extrasHours = draft.extras.length ? draft.extras.length * 0.5 : 0;
+  const totalHours = baseHours + extrasHours;
+  const baseRate = 45;
+  const subtotal = totalHours * baseRate;
+  let discount = 0;
+  if (draft.frequency === 'Weekly') discount = 0.1;
+  else if (draft.frequency === 'Every 2 weeks') discount = 0.05;
+  else if (draft.frequency === 'Monthly') discount = 0.03;
+  const price = Math.max(60, Math.round(subtotal * (1 - discount)));
+  const frequencyNote = discount > 0 ? `${Math.round(discount * 100)}% repeat discount` : 'standard rate';
+  return {
+    durationLabel: `${totalHours.toFixed(1)} hours est.`,
+    price,
+    baseRate,
+    frequencyNote,
+    baseHours: baseHours.toFixed(1),
+    extrasHours: extrasHours.toFixed(1),
+    discount
+  };
 }
 
 function initBookingConfirm() {
@@ -511,16 +687,19 @@ function initBookingConfirm() {
 
   confirmButtons.forEach((btn) => {
     btn?.addEventListener('click', async () => {
+      confirmButtons.forEach((button) => button && (button.disabled = true));
       setBookingDraft({ status: 'submitted' });
       feedbackEls.forEach((el) => el && (el.textContent = 'Submitted draft. Awaiting confirmation.'));
       await safeChatPing();
       injectDraftCard();
       renderDraftPanels();
+      confirmButtons.forEach((button) => button && (button.disabled = false));
     });
   });
 }
 
 async function safeChatPing() {
+  showTypingIndicator();
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 4000);
@@ -533,11 +712,31 @@ async function safeChatPing() {
     clearTimeout(timeout);
     if (!response.ok) throw new Error(`Status ${response.status}`);
     await response.json();
+    clearTypingIndicator();
     appendAssistant('AI assistant acknowledged your booking.');
   } catch (error) {
     console.warn('AI chat error', error);
+    clearTypingIndicator();
     appendAssistant('We could not reach the AI right now. Continuing with the guided draft.');
+    appendRetryCard();
   }
+}
+
+function appendRetryCard() {
+  const stream = document.getElementById('chat-stream');
+  if (!stream) return;
+  const card = document.createElement('div');
+  card.className = 'assistant-bubble';
+  card.innerHTML = `
+    <p class="text-sm text-gray-200">Retry AI acknowledgement?</p>
+    <button type="button" class="btn-ghost mt-2 w-full rounded-xl text-sm font-semibold" id="retry-chat">Retry now</button>
+  `;
+  stream.appendChild(card);
+  stream.scrollTop = stream.scrollHeight;
+  card.querySelector('#retry-chat')?.addEventListener('click', () => {
+    card.remove();
+    safeChatPing();
+  });
 }
 
 function initProviderOnboarding() {
