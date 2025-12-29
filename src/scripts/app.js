@@ -4,8 +4,12 @@ import { detectIntent } from './nlp/intentEngine.ts';
 import { getGuidedPrompt, shouldStayInFlow } from './dialog/flowManager.ts';
 import faqEn from '../data/faq.en.json';
 import faqSv from '../data/faq.sv.json';
+import faqDe from '../data/faq.de.json';
+import faqEs from '../data/faq.es.json';
 import intentsEn from '../data/intents.en.json';
 import intentsSv from '../data/intents.sv.json';
+import intentsDe from '../data/intents.de.json';
+import intentsEs from '../data/intents.es.json';
 
 const storageKeys = {
   user: 'cleanai_user',
@@ -417,11 +421,15 @@ let safePingFallbackShown = false;
 
 const faqByLang = {
   en: faqEn,
+  de: faqDe,
+  es: faqEs,
   sv: faqSv,
   se: faqSv
 };
 const intentsByLang = {
   en: intentsEn,
+  de: intentsDe,
+  es: intentsEs,
   sv: intentsSv,
   se: intentsSv
 };
