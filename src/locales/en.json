@@ -185,7 +185,7 @@
   "booking.policy.arrival": "Arrival window: {value}.",
   "booking.policy.changes": "Change anytime; a CleanAI coordinator confirms before charging.",
   "booking.policy.verified": "We pair you with verified cleaners. Reschedule up to 24h in advance.",
-  "booking.policy.location": "User granted location access for autofill.",
+  "booking.policy.location": "User enabled location-based autofill.",
   "booking.summary.policiesLabel": "Policies",
   "booking.fields.category": "Category",
   "booking.fields.category.pending": "Not set",

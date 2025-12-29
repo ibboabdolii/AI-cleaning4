@@ -1,10 +1,14 @@
 import { t } from './i18n.js';
 
 async function reverseGeocode(lat: number, lon: number, lang: string) {
-  const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`;
-  const res = await fetch(url, { headers: { 'Accept-Language': lang } });
+  const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&addressdetails=1`;
+  const res = await fetch(url, { headers: { 'Accept-Language': lang || 'en' } });
   const data = await res.json();
-  return data?.display_name || '';
+  const address = data?.address || {};
+  const city = address.city || address.town || address.village || address.hamlet || '';
+  const postcode = address.postcode || '';
+  const label = [postcode, city].filter(Boolean).join(' ') || data?.display_name || '';
+  return label;
 }
 
 export function requestLocationAutofill({

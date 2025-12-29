@@ -185,7 +185,7 @@
   "booking.policy.arrival": "Ankunftszeitraum: {value}.",
   "booking.policy.changes": "Ändern jederzeit möglich; ein Koordinator bestätigt vor Belastung.",
   "booking.policy.verified": "Wir vermitteln verifizierte Cleaner. Umbuchen bis 24h vorher.",
-  "booking.policy.location": "Nutzer hat Standortzugriff für Autofill erlaubt.",
+  "booking.policy.location": "Nutzer hat standortbasiertes Autofill aktiviert.",
   "booking.fields.category": "Kategorie",
   "booking.fields.category.pending": "Nicht gesetzt",
   "booking.fields.address": "Adresse",

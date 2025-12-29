@@ -60,7 +60,10 @@ async function setLanguage(lang, persist = true) {
   if (!Object.keys(translations).length) {
     translations = fallbackTranslations;
   }
-  if (persist) localStorage.setItem(languageKey, target);
+  if (persist) {
+    localStorage.setItem(languageKey, target);
+    localStorage.setItem('languageSelected', 'true');
+  }
   document.documentElement.lang = languageMeta[target]?.locale || 'en';
   applyTranslations();
   listeners.forEach((cb) => cb(target));
@@ -200,6 +203,10 @@ function closeSelector() {
   selectorEl.classList.add('hidden');
   selectorEl.setAttribute('aria-hidden', 'true');
   if (lastFocused) lastFocused.focus();
+  setTimeout(() => {
+    selectorEl?.remove();
+    selectorEl = null;
+  }, 50);
 }
 
 function getCurrentLanguage() {
