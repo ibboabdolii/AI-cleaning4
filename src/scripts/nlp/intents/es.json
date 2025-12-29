@@ -1,0 +1,19 @@
+{
+  "reservar limpieza": "booking.create",
+  "programar limpieza": "booking.create",
+  "empezar reserva": "booking.create",
+  "agendar limpieza": "booking.create",
+  "cancelar mi pedido": "booking.cancel",
+  "cancelar reserva": "booking.cancel",
+  "detener mi reserva": "booking.cancel",
+  "poner una queja": "support.complaint",
+  "no estoy feliz": "support.complaint",
+  "problema con el servicio": "support.complaint",
+  "cuánto cuesta": "quote.request",
+  "qué precio": "quote.request",
+  "cotización": "quote.request",
+  "necesito una cotización": "quote.request",
+  "hola": "greet",
+  "buenas": "greet",
+  "hey": "greet"
+}
