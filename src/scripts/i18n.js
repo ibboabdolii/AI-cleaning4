@@ -12,7 +12,7 @@ const languageMeta = {
   es: { label: 'Español', locale: 'es-ES' }
 };
 
-const languageKey = 'cleanai_language';
+const languageKey = 'lang';
 let translations = {};
 let fallbackTranslations = {};
 let currentLanguage = 'en';
@@ -45,7 +45,7 @@ function formatWithLocale(date, lang = currentLanguage, options = {}) {
 }
 
 function getStoredLanguage() {
-  return localStorage.getItem(languageKey);
+  return localStorage.getItem(languageKey) || localStorage.getItem('cleanai_language');
 }
 
 async function setLanguage(lang, persist = true) {
@@ -64,6 +64,7 @@ async function setLanguage(lang, persist = true) {
   document.documentElement.lang = languageMeta[target]?.locale || 'en';
   applyTranslations();
   listeners.forEach((cb) => cb(target));
+  closeSelector();
 }
 
 async function initI18n() {
