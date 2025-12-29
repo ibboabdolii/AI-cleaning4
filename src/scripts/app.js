@@ -1,3 +1,5 @@
+import { initI18n, t, onLanguageChange, openLanguageSelector, getCurrentLanguage, formatWithLocale, applyTranslations } from './i18n.js';
+
 const storageKeys = {
   user: 'cleanai_user',
   auth: 'cleanai_auth_token',
@@ -15,7 +17,8 @@ const defaultProfile = {
   customerCategory: null,
   onboardingComplete: false,
   providerStatus: 'draft',
-  providerData: {}
+  providerData: {},
+  language: 'en'
 };
 
 const defaultBookingDraft = {
@@ -29,44 +32,51 @@ const defaultBookingDraft = {
   notes: ''
 };
 
-const chatSteps = [
+const chatStepDefinitions = [
   {
     key: 'address',
-    prompt: 'Where should we send your cleaner?',
-    options: ['Primary home address', 'New office location', 'Hotel room (include room #)']
+    promptKey: 'chat.steps.address.prompt',
+    options: ['chat.steps.address.option.home', 'chat.steps.address.option.office', 'chat.steps.address.option.hotel']
   },
   {
     key: 'propertySize',
-    prompt: 'How large is the space?',
-    options: ['Studio or 1 bedroom', '2-3 bedrooms', '4+ bedrooms / large office', 'Over 200 sqm']
+    promptKey: 'chat.steps.size.prompt',
+    options: ['chat.steps.size.option.studio', 'chat.steps.size.option.small', 'chat.steps.size.option.large', 'chat.steps.size.option.over200']
   },
   {
     key: 'frequency',
-    prompt: 'How often do you want this cleaning?',
-    options: ['One-time', 'Weekly', 'Every 2 weeks', 'Monthly']
+    promptKey: 'chat.steps.frequency.prompt',
+    options: ['chat.steps.frequency.option.once', 'chat.steps.frequency.option.weekly', 'chat.steps.frequency.option.biweekly', 'chat.steps.frequency.option.monthly']
   },
   {
     key: 'dateTime',
-    prompt: 'When should we start?',
+    promptKey: 'chat.steps.schedule.prompt',
     options: [
       () => formatRelativeDate(1, '09:00'),
       () => formatRelativeDate(2, '13:00'),
       () => formatRelativeDate(3, '18:00'),
-      'Share another time'
+      'chat.steps.schedule.option.share'
     ]
   },
   {
     key: 'extras',
-    prompt: 'Any extras for this visit?',
-    options: ['Deep clean', 'Fridge & oven', 'Laundry', 'No extras']
+    promptKey: 'chat.steps.extras.prompt',
+    options: ['chat.steps.extras.option.deep', 'chat.steps.extras.option.kitchen', 'chat.steps.extras.option.laundry', 'chat.steps.extras.option.none']
   },
   {
     key: 'notes',
-    prompt: 'Add any access notes or preferences (optional).',
-    options: ['Access code ready', 'Pets at home', 'Fragile items – handle with care'],
+    promptKey: 'chat.steps.notes.prompt',
+    options: ['chat.steps.notes.option.access', 'chat.steps.notes.option.pets', 'chat.steps.notes.option.fragile'],
     allowCustom: true
   }
 ];
+
+function getChatSteps() {
+  return chatStepDefinitions.map((step) => {
+    const options = step.options.map((option) => option);
+    return { ...step, options, prompt: t(step.promptKey) };
+  });
+}
 
 function readJSON(key, fallback) {
   try {
@@ -158,7 +168,8 @@ function isProviderOnboarded() {
 function formatRelativeDate(daysAhead, time) {
   const date = new Date();
   date.setDate(date.getDate() + daysAhead);
-  return `${date.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })} · ${time}`;
+  const label = formatWithLocale(date, getCurrentLanguage(), { weekday: 'short', month: 'short', day: 'numeric' });
+  return `${label} · ${time}`;
 }
 
 function showError(target, message) {
@@ -175,6 +186,17 @@ function attachLogout() {
       clearSession();
       window.location.href = '/login.html';
     });
+  });
+}
+
+function bindLanguageLauncher() {
+  const buttons = Array.from(document.querySelectorAll('#language-launcher'));
+  buttons.forEach((btn) => {
+    if (!btn.dataset.bound) {
+      btn.addEventListener('click', () => openLanguageSelector());
+      btn.dataset.bound = 'true';
+    }
+    btn.textContent = t('language.switch', 'Language');
   });
 }
 
@@ -203,15 +225,15 @@ function initAuthPage(type) {
     const name = String(formData.get('name') || '').trim();
 
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      showError(errorTarget, 'Please enter a valid email.');
+      showError(errorTarget, t('auth.error.email', 'Please enter a valid email.'));
       return;
     }
     if (!password || password.length < 8) {
-      showError(errorTarget, 'Password must be at least 8 characters.');
+      showError(errorTarget, t('auth.error.password', 'Password must be at least 8 characters.'));
       return;
     }
     if (type === 'register' && !name) {
-      showError(errorTarget, 'Add your name so we can personalize the chat.');
+      showError(errorTarget, t('auth.error.name', 'Add your name so we can personalize the chat.'));
       return;
     }
 
@@ -230,7 +252,7 @@ function initOnboardingPage() {
 
   const userLabel = document.getElementById('onboarding-user');
   if (userLabel) {
-    userLabel.textContent = user?.email || 'Logged in';
+    userLabel.textContent = user?.email || t('onboarding.loggedIn', 'Logged in');
   }
 
   const roleCards = document.querySelectorAll('.role-card');
@@ -275,7 +297,7 @@ function initOnboardingPage() {
         categorySection?.classList.remove('hidden');
       } else {
         categorySection?.classList.add('hidden');
-        categoryStatus.textContent = 'N/A';
+        categoryStatus.textContent = t('status.na', 'N/A');
       }
       updateOnboardingBadges(updated, { onboardingStatus, roleStatus, categoryStatus, providerStatus });
       if (errorEl) errorEl.textContent = '';
@@ -296,11 +318,11 @@ function initOnboardingPage() {
   continueBtn?.addEventListener('click', () => {
     const current = getProfile();
     if (!current.role) {
-      errorEl.textContent = 'Choose a role to continue.';
+      errorEl.textContent = t('onboarding.error.role', 'Choose a role to continue.');
       return;
     }
     if (current.role === 'customer' && !current.customerCategory) {
-      errorEl.textContent = 'Pick what you need cleaned to continue to chat.';
+      errorEl.textContent = t('onboarding.error.category', 'Pick what you need cleaned to continue to chat.');
       return;
     }
     if (current.role === 'customer') {
@@ -318,14 +340,25 @@ function initOnboardingPage() {
 
 function updateOnboardingBadges(profile, refs) {
   const { onboardingStatus, roleStatus, categoryStatus, providerStatus } = refs;
-  const roleLabel = profile.role ? 'Captured' : 'Pending';
-  const categoryLabel = profile.role === 'customer' && profile.customerCategory ? profile.customerCategory : profile.role === 'provider' ? 'N/A' : 'Pending';
-  const onboardingLabel = profile.role === 'customer' && profile.customerCategory ? 'Ready' : profile.role === 'provider' && profile.providerStatus !== 'draft' ? profile.providerStatus : 'Draft';
+  const roleLabel = profile.role ? t('status.captured', 'Captured') : t('status.pending', 'Pending');
+  const categoryLabel =
+    profile.role === 'customer' && profile.customerCategory
+      ? profile.customerCategory
+      : profile.role === 'provider'
+        ? t('status.na', 'N/A')
+        : t('status.pending', 'Pending');
+  const onboardingLabel =
+    profile.role === 'customer' && profile.customerCategory
+      ? t('status.ready', 'Ready')
+      : profile.role === 'provider' && profile.providerStatus !== 'draft'
+        ? t(`status.${profile.providerStatus}`, profile.providerStatus)
+        : t('status.draft', 'Draft');
+  const providerLabel = profile.providerStatus ? t(`status.${profile.providerStatus}`, profile.providerStatus) : t('status.draft', 'Draft');
 
   if (onboardingStatus) onboardingStatus.textContent = onboardingLabel;
   if (roleStatus) roleStatus.textContent = roleLabel;
   if (categoryStatus) categoryStatus.textContent = categoryLabel;
-  if (providerStatus) providerStatus.textContent = profile.providerStatus || 'Draft';
+  if (providerStatus) providerStatus.textContent = providerLabel;
 }
 
 function initBookingPage() {
@@ -345,7 +378,10 @@ function initBookingPage() {
     categoryPill.textContent = profile.customerCategory || 'Customer';
     categoryPill.classList.remove('hidden');
   }
-  if (subtitle) subtitle.textContent = `We’ll keep your ${profile.customerCategory} booking structured.`;
+  if (subtitle) {
+    const categoryLabel = profile.customerCategory || t('booking.category.default', 'cleaning');
+    subtitle.textContent = t('booking.subtitle', 'We’ll keep your {category} booking structured.').replace('{category}', categoryLabel);
+  }
 
   setupSummaryToggle();
   renderDraftPanels();
@@ -396,8 +432,11 @@ function startGuidedChat() {
   setComposerPending(false);
 
   const user = getUser();
-  const name = user?.name || 'there';
-  appendAssistant(`<span class="badge">Step 0/${chatSteps.length}</span> Hi ${name}, let’s book your cleaning. I’ll keep this guided.`);
+  const name = user?.name || t('chat.fallbackName', 'there');
+  const steps = getChatSteps();
+  const progressLabel = t('chat.stepProgress', 'Step {current}/{total}').replace('{current}', 0).replace('{total}', steps.length);
+  const greeting = t('chat.greeting', 'Hi {name}, let’s book your cleaning. I’ll keep this guided.').replace('{name}', name);
+  appendAssistant(`<span class=\"badge\">${progressLabel}</span> ${greeting}`);
   presentStep();
 
   const form = document.getElementById('chat-input');
@@ -417,7 +456,7 @@ function startGuidedChat() {
       showTypingIndicator();
       setTimeout(() => {
         clearTypingIndicator();
-        appendAssistant('Noted. I’ve added this to your booking draft.');
+        appendAssistant(t('chat.notes.added', 'Noted. I’ve added this to your booking draft.'));
         setComposerPending(false);
       }, 450);
     });
@@ -431,17 +470,17 @@ function resetChatStream() {
   const intro = document.createElement('div');
   intro.className = 'assistant-bubble';
   intro.innerHTML = `
-    <p class="font-semibold text-white">Welcome to CleanAI!</p>
-    <p class="text-sm text-gray-300">We’ll keep this structured—reply with quick chips, and we’ll update your booking draft live.</p>
+    <p class="font-semibold text-white">${t('booking.chat.welcome.title', 'Welcome to CleanAI!')}</p>
+    <p class="text-sm text-gray-300">${t('booking.chat.welcome.subtitle', 'We’ll keep this structured—reply with quick chips, and we’ll update your booking draft live.')}</p>
     <div class="action-card mt-3 text-sm text-gray-200">
       <div class="flex items-center justify-between">
-        <p class="font-semibold text-white">How we keep you on track</p>
-        <span class="badge badge-emerald">Live draft</span>
+        <p class="font-semibold text-white">${t('booking.chat.card.title', 'How we keep you on track')}</p>
+        <span class="badge badge-emerald">${t('booking.chat.card.badge', 'Live draft')}</span>
       </div>
       <ul class="mt-2 list-disc list-inside text-gray-200/90">
-        <li>Guided prompts for address, size, cadence, and schedule.</li>
-        <li>Quick replies mirror chip controls for keyboard users.</li>
-        <li>Quote summary updates instantly on the right or in the drawer.</li>
+        <li>${t('booking.chat.card.point1', 'Guided prompts for address, size, cadence, and schedule.')}</li>
+        <li>${t('booking.chat.card.point2', 'Quick replies mirror chip controls for keyboard users.')}</li>
+        <li>${t('booking.chat.card.point3', 'Quote summary updates instantly on the right or in the drawer.')}</li>
       </ul>
     </div>
   `;
@@ -449,14 +488,15 @@ function resetChatStream() {
 }
 
 function presentStep() {
-  const step = chatSteps[chatState.step];
+  const steps = getChatSteps();
+  const step = steps[chatState.step];
   if (!step) return;
-  const progressLabel = `Step ${chatState.step + 1}/${chatSteps.length}`;
-  appendAssistant(`<span class="badge">${progressLabel}</span> ${step.prompt}`);
+  const progressLabel = t('chat.stepProgress', 'Step {current}/{total}').replace('{current}', chatState.step + 1).replace('{total}', steps.length);
+  appendAssistant(`<span class=\"badge\">${progressLabel}</span> ${step.prompt}`);
   const replies = document.getElementById('quick-replies');
   replies.innerHTML = '';
   step.options.forEach((option) => {
-    const label = typeof option === 'function' ? option() : option;
+    const label = typeof option === 'function' ? option() : t(option, option);
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'quick-reply';
@@ -471,7 +511,7 @@ function handleStepSelection(step, value) {
   const draft = getBookingDraft();
   const nextDraft = { ...draft };
   if (step.key === 'extras') {
-    nextDraft.extras = value === 'No extras' ? [] : [value];
+    nextDraft.extras = value === t('chat.steps.extras.option.none', 'No extras') ? [] : [value];
   } else if (step.key === 'notes') {
     nextDraft.notes = value;
   } else {
@@ -487,11 +527,12 @@ function handleStepSelection(step, value) {
 }
 
 function moveToNextStep() {
-  if (chatState.step < chatSteps.length - 1) {
+  const steps = getChatSteps();
+  if (chatState.step < steps.length - 1) {
     chatState.step += 1;
     presentStep();
   } else {
-    appendAssistant('Thanks! Here is your booking draft. Submit when ready.');
+    appendAssistant(t('chat.complete', 'Thanks! Here is your booking draft. Submit when ready.'));
     injectDraftCard();
     document.getElementById('quick-replies').innerHTML = '';
   }
@@ -548,13 +589,13 @@ function appendUser(message) {
 function renderDraftPanels(draftOverride) {
   const draft = draftOverride || getBookingDraft();
   const fields = [
-    { label: 'Category', value: draft.category || 'Not set' },
-    { label: 'Address', value: draft.address || 'Add address' },
-    { label: 'Size', value: draft.propertySize || 'Choose size' },
-    { label: 'Frequency', value: draft.frequency || 'Select cadence' },
-    { label: 'Schedule', value: draft.dateTime || 'Pick a time' },
-    { label: 'Extras', value: draft.extras.length ? draft.extras.join(', ') : 'No extras' },
-    { label: 'Notes', value: draft.notes || 'Optional notes' }
+    { label: t('booking.fields.category', 'Category'), value: draft.category || t('booking.fields.category.pending', 'Not set') },
+    { label: t('booking.fields.address', 'Address'), value: draft.address || t('booking.fields.address.pending', 'Add address') },
+    { label: t('booking.fields.size', 'Size'), value: draft.propertySize || t('booking.fields.size.pending', 'Choose size') },
+    { label: t('booking.fields.frequency', 'Frequency'), value: draft.frequency || t('booking.fields.frequency.pending', 'Select cadence') },
+    { label: t('booking.fields.schedule', 'Schedule'), value: draft.dateTime || t('booking.fields.schedule.pending', 'Pick a time') },
+    { label: t('booking.fields.extras', 'Extras'), value: draft.extras.length ? draft.extras.join(', ') : t('booking.fields.extras.none', 'No extras') },
+    { label: t('booking.fields.notes', 'Notes'), value: draft.notes || t('booking.fields.notes.pending', 'Optional notes') }
   ];
   const panels = [
     document.getElementById('draft-fields'),
@@ -577,27 +618,30 @@ function renderDraftPanels(draftOverride) {
   estimateTargets.forEach((target) => {
     if (!target) return;
     target.innerHTML = `
-      <p><strong>Duration:</strong> ${estimate.durationLabel}</p>
-      <p><strong>Price estimate:</strong> €${estimate.price}</p>
-      <p class="text-xs text-gray-400">Base: ${estimate.baseHours}h x €${estimate.baseRate}/h · Extras: ${estimate.extrasHours}h</p>
-      <p class="text-xs text-gray-400">Repeats: ${estimate.frequencyNote}</p>
+      <p><strong>${t('booking.summary.duration', 'Duration:')}</strong> ${estimate.durationLabel}</p>
+      <p><strong>${t('booking.summary.price', 'Price estimate:')}</strong> €${estimate.price}</p>
+      <p class="text-xs text-gray-400">${t('booking.summary.base', 'Base: {hours}h x €{rate}/h · Extras: {extras}h')
+        .replace('{hours}', estimate.baseHours)
+        .replace('{rate}', estimate.baseRate)
+        .replace('{extras}', estimate.extrasHours)}</p>
+      <p class="text-xs text-gray-400">${t('booking.summary.repeats', 'Repeats: {frequency}').replace('{frequency}', estimate.frequencyNote)}</p>
     `;
   });
 
   const policies = document.getElementById('summary-policies');
   if (policies) {
     policies.innerHTML = `
-      <p>Arrival window: ${draft.dateTime || 'Set during chat'}.</p>
-      <p>Change anytime; a CleanAI coordinator confirms before charging.</p>
-      <p>We pair you with verified cleaners. Reschedule up to 24h in advance.</p>
+      <p>${t('booking.policy.arrival', 'Arrival window: {value}.').replace('{value}', draft.dateTime || t('booking.fields.schedule.pending', 'Set during chat'))}</p>
+      <p>${t('booking.policy.changes', 'Change anytime; a CleanAI coordinator confirms before charging.')}</p>
+      <p>${t('booking.policy.verified', 'We pair you with verified cleaners. Reschedule up to 24h in advance.')}</p>
     `;
   }
 
   const segment = document.getElementById('summary-segment');
-  if (segment) segment.textContent = draft.category ? `${draft.category} segment` : 'Segment pending';
+  if (segment) segment.textContent = draft.category ? `${draft.category} ${t('booking.fields.segment', 'segment')}` : t('booking.fields.segment.pending', 'Segment pending');
 
   const status = document.getElementById('draft-status');
-  if (status) status.textContent = draft.status === 'submitted' ? 'Submitted' : 'Draft';
+  if (status) status.textContent = draft.status === 'submitted' ? t('status.submitted', 'Submitted') : t('status.draft', 'Draft');
 }
 
 function injectDraftCard() {
@@ -610,35 +654,35 @@ function injectDraftCard() {
   card.innerHTML = `
     <div class="flex items-center justify-between">
       <div>
-        <p class="text-xs uppercase tracking-[0.2em] text-gray-400">Booking Draft</p>
-        <p class="text-lg font-semibold text-white">${draft.category || 'Cleaning'} quote</p>
+        <p class="text-xs uppercase tracking-[0.2em] text-gray-400">${t('booking.summary.title', 'Booking Draft')}</p>
+        <p class="text-lg font-semibold text-white">${draft.category || t('booking.category.default', 'Cleaning')} ${t('booking.quote', 'quote')}</p>
       </div>
-      <span class="pill">Draft</span>
+      <span class="pill">${t('status.draft', 'Draft')}</span>
     </div>
     <div class="mt-3 space-y-2 text-sm text-gray-300">
-      <p><strong>Address:</strong> ${draft.address || 'Pending'}</p>
-      <p><strong>Size:</strong> ${draft.propertySize || 'Pending'}</p>
-      <p><strong>Frequency:</strong> ${draft.frequency || 'Pending'}</p>
-      <p><strong>Schedule:</strong> ${draft.dateTime || 'Pending'}</p>
-      <p><strong>Extras:</strong> ${draft.extras.length ? draft.extras.join(', ') : 'None'}</p>
-      <p><strong>Notes:</strong> ${draft.notes || '—'}</p>
+      <p><strong>${t('booking.fields.address', 'Address')}:</strong> ${draft.address || t('status.pending', 'Pending')}</p>
+      <p><strong>${t('booking.fields.size', 'Size')}:</strong> ${draft.propertySize || t('status.pending', 'Pending')}</p>
+      <p><strong>${t('booking.fields.frequency', 'Frequency')}:</strong> ${draft.frequency || t('status.pending', 'Pending')}</p>
+      <p><strong>${t('booking.fields.schedule', 'Schedule')}:</strong> ${draft.dateTime || t('status.pending', 'Pending')}</p>
+      <p><strong>${t('booking.fields.extras', 'Extras')}:</strong> ${draft.extras.length ? draft.extras.join(', ') : t('booking.fields.extras.none', 'None')}</p>
+      <p><strong>${t('booking.fields.notes', 'Notes')}:</strong> ${draft.notes || '—'}</p>
     </div>
     <div class="mt-3 grid grid-cols-1 gap-2 rounded-xl bg-black/20 p-3 text-sm text-gray-200 sm:grid-cols-2">
       <div>
-        <p class="text-xs uppercase tracking-[0.2em] text-gray-400">Duration</p>
+        <p class="text-xs uppercase tracking-[0.2em] text-gray-400">${t('booking.summary.durationLabel', 'Duration')}</p>
         <p class="font-semibold text-white">${estimate.durationLabel}</p>
       </div>
       <div>
-        <p class="text-xs uppercase tracking-[0.2em] text-gray-400">Est. price</p>
+        <p class="text-xs uppercase tracking-[0.2em] text-gray-400">${t('booking.summary.priceLabel', 'Est. price')}</p>
         <p class="font-semibold text-white">€${estimate.price}</p>
         <p class="text-xs text-gray-400">${estimate.frequencyNote}</p>
       </div>
     </div>
     <div class="action-card mt-3 text-sm text-gray-200">
-      <p class="font-semibold text-white">Next steps</p>
+      <p class="font-semibold text-white">${t('booking.nextSteps.title', 'Next steps')}</p>
       <ul class="mt-1 list-disc list-inside text-gray-200/80">
-        <li>Review the summary card on the right or open the drawer on mobile.</li>
-        <li>Tap Submit to send the draft. We’ll ping the AI endpoint if reachable.</li>
+        <li>${t('booking.nextSteps.summary', 'Review the summary card on the right or open the drawer on mobile.')}</li>
+        <li>${t('booking.nextSteps.submit', 'Tap Submit to send the draft. We’ll ping the AI endpoint if reachable.')}</li>
       </ul>
     </div>
   `;
@@ -663,9 +707,12 @@ function buildEstimate(draft) {
   else if (draft.frequency === 'Every 2 weeks') discount = 0.05;
   else if (draft.frequency === 'Monthly') discount = 0.03;
   const price = Math.max(60, Math.round(subtotal * (1 - discount)));
-  const frequencyNote = discount > 0 ? `${Math.round(discount * 100)}% repeat discount` : 'standard rate';
+  const frequencyNote =
+    discount > 0
+      ? t('booking.frequency.discount', '{discount}% repeat discount').replace('{discount}', Math.round(discount * 100))
+      : t('booking.frequency.standard', 'standard rate');
   return {
-    durationLabel: `${totalHours.toFixed(1)} hours est.`,
+    durationLabel: t('booking.duration.estimate', '{hours} hours est.').replace('{hours}', totalHours.toFixed(1)),
     price,
     baseRate,
     frequencyNote,
@@ -689,7 +736,7 @@ function initBookingConfirm() {
     btn?.addEventListener('click', async () => {
       confirmButtons.forEach((button) => button && (button.disabled = true));
       setBookingDraft({ status: 'submitted' });
-      feedbackEls.forEach((el) => el && (el.textContent = 'Submitted draft. Awaiting confirmation.'));
+      feedbackEls.forEach((el) => el && (el.textContent = t('booking.feedback.submitted', 'Submitted draft. Awaiting confirmation.')));
       await safeChatPing();
       injectDraftCard();
       renderDraftPanels();
@@ -706,18 +753,18 @@ async function safeChatPing() {
     const response = await fetch('/api/ai/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: 'Booking submitted' }),
+      body: JSON.stringify({ message: t('chat.api.submit', 'Booking submitted'), lang: getCurrentLanguage() }),
       signal: controller.signal
     });
     clearTimeout(timeout);
     if (!response.ok) throw new Error(`Status ${response.status}`);
     await response.json();
     clearTypingIndicator();
-    appendAssistant('AI assistant acknowledged your booking.');
+    appendAssistant(t('chat.api.success', 'AI assistant acknowledged your booking.'));
   } catch (error) {
     console.warn('AI chat error', error);
     clearTypingIndicator();
-    appendAssistant('We could not reach the AI right now. Continuing with the guided draft.');
+    appendAssistant(t('chat.api.error', 'We could not reach the AI right now. Continuing with the guided draft.'));
     appendRetryCard();
   }
 }
@@ -728,8 +775,8 @@ function appendRetryCard() {
   const card = document.createElement('div');
   card.className = 'assistant-bubble';
   card.innerHTML = `
-    <p class="text-sm text-gray-200">Retry AI acknowledgement?</p>
-    <button type="button" class="btn-ghost mt-2 w-full rounded-xl text-sm font-semibold" id="retry-chat">Retry now</button>
+    <p class="text-sm text-gray-200">${t('chat.api.retry.title', 'Retry AI acknowledgement?')}</p>
+    <button type="button" class="btn-ghost mt-2 w-full rounded-xl text-sm font-semibold" id="retry-chat">${t('chat.api.retry.cta', 'Retry now')}</button>
   `;
   stream.appendChild(card);
   stream.scrollTop = stream.scrollHeight;
@@ -755,8 +802,8 @@ function initProviderOnboarding() {
   const providerFeedback = document.getElementById('provider-feedback');
   const providerError = document.getElementById('provider-error');
 
-  if (providerStatusEl) providerStatusEl.textContent = profile.providerStatus || 'Draft';
-  if (providerBadge) providerBadge.textContent = profile.providerStatus || 'Draft';
+  if (providerStatusEl) providerStatusEl.textContent = profile.providerStatus || t('status.draft', 'Draft');
+  if (providerBadge) providerBadge.textContent = profile.providerStatus || t('status.draft', 'Draft');
 
   restoreProviderForm(profile.providerData || {});
   updateStep();
@@ -777,17 +824,17 @@ function initProviderOnboarding() {
   document.getElementById('save-draft')?.addEventListener('click', () => {
     const data = collectProviderData(form);
     setProfile({ providerData: data, providerStatus: 'draft' });
-    providerFeedback.textContent = 'Draft saved locally. Resume anytime.';
-    providerStatusEl.textContent = 'Draft';
-    providerBadge.textContent = 'Draft';
+    providerFeedback.textContent = t('provider.feedback.draft', 'Draft saved locally. Resume anytime.');
+    providerStatusEl.textContent = t('status.draft', 'Draft');
+    providerBadge.textContent = t('status.draft', 'Draft');
   });
 
   document.getElementById('submit-provider')?.addEventListener('click', () => {
     const data = collectProviderData(form);
     setProfile({ providerData: data, providerStatus: 'pending', onboardingComplete: true });
-    providerFeedback.textContent = 'Submitted for review. Feed remains locked until approved.';
-    providerStatusEl.textContent = 'Pending review';
-    providerBadge.textContent = 'Pending';
+    providerFeedback.textContent = t('provider.feedback.submitted', 'Submitted for review. Feed remains locked until approved.');
+    providerStatusEl.textContent = t('provider.status.pendingReview', 'Pending review');
+    providerBadge.textContent = t('status.pending', 'Pending');
   });
 
   function updateStep() {
@@ -840,13 +887,13 @@ function validateStep(step, data, errorEl) {
   errorEl.textContent = '';
   if (step === 'basics') {
     if (!data.serviceArea) {
-      errorEl.textContent = 'Add a service area to continue.';
+      errorEl.textContent = t('provider.error.serviceArea', 'Add a service area to continue.');
       return false;
     }
   }
   if (step === 'pricing') {
     if (!data.hourlyRate) {
-      errorEl.textContent = 'Share an hourly rate to continue.';
+      errorEl.textContent = t('provider.error.hourlyRate', 'Share an hourly rate to continue.');
       return false;
     }
   }
@@ -865,7 +912,8 @@ function initProviderFeed() {
   const markApproved = document.getElementById('mark-approved');
 
   const approved = profile.providerStatus === 'approved';
-  badge.textContent = approved ? 'Approved' : profile.providerStatus || 'Pending';
+  const statusLabel = profile.providerStatus ? t(`status.${profile.providerStatus}`, profile.providerStatus) : t('status.pending', 'Pending');
+  badge.textContent = approved ? t('status.approved', 'Approved') : statusLabel;
 
   if (profile.providerStatus === 'draft') {
     window.location.href = '/provider-onboarding.html';
@@ -882,7 +930,7 @@ function initProviderFeed() {
 
   markApproved?.addEventListener('click', () => {
     setProfile({ providerStatus: 'approved' });
-    badge.textContent = 'Approved';
+    badge.textContent = t('status.approved', 'Approved');
     locked?.classList.add('hidden');
     renderFeed(list);
   });
@@ -906,7 +954,7 @@ function renderFeed(container) {
       </div>
       <p class="text-gray-300">${item.location}</p>
       <p class="text-gray-400 text-xs">${item.start}</p>
-      <p class="mt-2 text-emerald-200 text-xs">Visible only after approval</p>
+      <p class="mt-2 text-emerald-200 text-xs">${t('provider.feed.lockedHint', 'Visible only after approval')}</p>
     `;
     container.appendChild(card);
   });
@@ -967,11 +1015,11 @@ function initLandingPage() {
     const location = form.elements['location']?.value?.trim();
     const activeSegment = chips.find((c) => c.classList.contains('active'))?.dataset.segment;
     if (!location) {
-      if (errorEl) errorEl.textContent = 'Add your ZIP or city to get availability.';
+      if (errorEl) errorEl.textContent = t('landing.error.location', 'Add your ZIP or city to get availability.');
       return;
     }
     if (!activeSegment) {
-      if (errorEl) errorEl.textContent = 'Choose Home, Office, or Hotel to continue.';
+      if (errorEl) errorEl.textContent = t('landing.error.segment', 'Choose Home, Office, or Hotel to continue.');
       return;
     }
     sessionStorage.setItem(sessionKeys.landingLocation, location);
@@ -981,8 +1029,48 @@ function initLandingPage() {
   });
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+function refreshLanguage(page) {
+  applyTranslations();
+  bindLanguageLauncher();
+  if (getAuthToken()) {
+    const profile = getProfile();
+    if (profile.language !== getCurrentLanguage()) {
+      setProfile({ language: getCurrentLanguage() });
+    }
+  }
+  if (page === 'book') {
+    const profile = getProfile();
+    const subtitle = document.getElementById('booking-subtitle');
+    if (subtitle) {
+      const categoryLabel = profile.customerCategory || t('booking.category.default', 'cleaning');
+      subtitle.textContent = t('booking.subtitle', 'We’ll keep your {category} booking structured.').replace('{category}', categoryLabel);
+    }
+    renderDraftPanels();
+    if (chatState.started) {
+      startGuidedChat();
+    } else {
+      resetChatStream();
+    }
+  }
+  if (page === 'onboarding') {
+    const onboardingStatus = document.getElementById('onboarding-status');
+    const roleStatus = document.getElementById('role-status');
+    const categoryStatus = document.getElementById('category-status');
+    const providerStatus = document.getElementById('provider-status');
+    updateOnboardingBadges(getProfile(), { onboardingStatus, roleStatus, categoryStatus, providerStatus });
+  }
+  if (page === 'provider-feed') {
+    const list = document.getElementById('feed-list');
+    if (list) renderFeed(list);
+    const badge = document.getElementById('feed-status');
+    if (badge) badge.textContent = getProfile().providerStatus || t('status.pending', 'Pending');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
   const page = document.body.dataset.page;
+  await initI18n();
+  bindLanguageLauncher();
   initNavLinks();
   switch (page) {
     case 'landing':
@@ -1009,4 +1097,6 @@ document.addEventListener('DOMContentLoaded', () => {
     default:
       break;
   }
+  refreshLanguage(page);
+  onLanguageChange(() => refreshLanguage(page));
 });
