@@ -57,11 +57,23 @@ export function requestLocationAutofill({
 
 export function attachLandingLocationAutofill() {
   const input = document.querySelector('input[name="location"]');
+  const trigger = document.getElementById('landing-use-location');
   if (!input) return;
-  requestLocationAutofill({
-    language: document.documentElement.lang || 'en',
-    onAddress: (addr) => {
-      (input as HTMLInputElement).value = addr;
-    }
-  });
+  const runAutofill = () =>
+    requestLocationAutofill({
+      language: document.documentElement.lang || 'en',
+      onAddress: (addr) => {
+        (input as HTMLInputElement).value = addr;
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+        sessionStorage.setItem('cleanai_landing_location', addr);
+      }
+    });
+
+  if (trigger) {
+    trigger.addEventListener('click', () => runAutofill());
+  } else {
+    // fallback: attempt when no explicit trigger is present
+    runAutofill();
+  }
 }
