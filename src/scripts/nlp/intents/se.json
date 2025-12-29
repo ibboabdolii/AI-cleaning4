@@ -4,5 +4,8 @@
   "kan du hjälpa mig": "general.help",
   "hur ombokar jag": "faq.reschedule",
   "får jag återbetalning": "faq.refund",
-  "vilka områden täcker ni": "faq.coverage"
+  "vilka områden täcker ni": "faq.coverage",
+  "hej": "general.help",
+  "hjälp": "general.help",
+  "varför": "general.why"
 }

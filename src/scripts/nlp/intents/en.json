@@ -4,5 +4,10 @@
   "can you help me": "general.help",
   "how to reschedule": "faq.reschedule",
   "do you offer refunds": "faq.refund",
-  "what areas do you cover": "faq.coverage"
+  "what areas do you cover": "faq.coverage",
+  "hi": "general.help",
+  "hello": "general.help",
+  "hey": "general.help",
+  "help": "general.help",
+  "why": "general.why"
 }

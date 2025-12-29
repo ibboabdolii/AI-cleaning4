@@ -4,5 +4,10 @@
   "kannst du mir helfen": "general.help",
   "wie kann ich umbuchen": "faq.reschedule",
   "gibt es erstattungen": "faq.refund",
-  "welche gebiete deckt ihr ab": "faq.coverage"
+  "welche gebiete deckt ihr ab": "faq.coverage",
+  "hallo": "general.help",
+  "hi": "general.help",
+  "hilfe": "general.help",
+  "warum": "general.why",
+  "wieso": "general.why"
 }

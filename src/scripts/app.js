@@ -408,6 +408,7 @@ function setupSummaryToggle() {
 }
 
 let chatState = { step: 0, started: false, typingNode: null };
+let fallbackShown = false;
 
 function setupChatExperience() {
   const startBtn = document.getElementById('start-booking');
@@ -448,6 +449,7 @@ function startGuidedChat() {
     form.dataset.bound = 'true';
     form.addEventListener('submit', (event) => {
       event.preventDefault();
+      console.log('[Chat] handler hit');
       const input = document.getElementById('custom-reply');
       if (!input?.value || chatState.typingNode) return;
       const message = input.value.trim();
@@ -459,9 +461,9 @@ function startGuidedChat() {
       input.value = '';
 
       const language = getCurrentLanguage();
-      console.log('[chat] user message', { message, language });
+      console.log('[Chat] lang, stepId', language, chatState.step);
       const detected = detectIntent(message, language);
-      if (detected) console.log('[chat] intent detected', detected);
+      if (detected) console.log('[Chat] intent match', detected);
       if (detected) {
         handleLocalIntent(detected);
         setComposerPending(false);
@@ -655,6 +657,12 @@ function handleLocalIntent(detected) {
     return;
   }
 
+  if (intent.startsWith('general.')) {
+    showTypingIndicator();
+    handleFaqIntent(intent, detected.language);
+    return;
+  }
+
   if (intent === 'booking.create' && !chatState.started) {
     startGuidedChat();
   }
@@ -706,6 +714,7 @@ async function sendMessageToAI(message) {
       step: chatState.step,
       bookingDraft: getBookingDraft()
     };
+    console.log('[Chat] AI request start', { message });
     const response = await fetch('/api/ai/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -716,11 +725,17 @@ async function sendMessageToAI(message) {
     if (!response.ok) throw new Error(`Status ${response.status}`);
     const data = await response.json();
     clearTypingIndicator();
+    console.log('[Chat] AI status ok');
     appendAssistant(data?.message || t('chat.notes.added', 'Noted. I’ve added this to your booking draft.'));
+    fallbackShown = false;
   } catch (error) {
     console.warn('AI chat send error', error);
     clearTypingIndicator();
-    appendAssistant(t('chat.api.error.short', 'We could not reach the AI right now. Staying in the guided flow.'));
+    if (!fallbackShown) {
+      appendAssistant(t('chat.api.error.short', 'We could not reach the AI right now. Staying in the guided flow.'));
+      fallbackShown = true;
+      if (chatState.started) presentStep();
+    }
   } finally {
     setComposerPending(false);
   }
