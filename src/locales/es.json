@@ -185,6 +185,7 @@
   "booking.policy.arrival": "Ventana de llegada: {value}.",
   "booking.policy.changes": "Cambia cuando quieras; un coordinador confirma antes de cobrar.",
   "booking.policy.verified": "Te emparejamos con limpiadores verificados. Reprograma hasta 24h antes.",
+  "booking.policy.location": "El usuario permitió acceso a ubicación para autocompletar.",
   "booking.fields.category": "Categoría",
   "booking.fields.category.pending": "Sin definir",
   "booking.fields.address": "Dirección",

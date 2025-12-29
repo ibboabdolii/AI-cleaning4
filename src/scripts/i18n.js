@@ -65,14 +65,24 @@ async function setLanguage(lang, persist = true) {
   applyTranslations();
   listeners.forEach((cb) => cb(target));
   closeSelector();
+  document.body.classList.remove('lang-blocked');
 }
 
 async function initI18n() {
   const stored = getStoredLanguage();
-  await setLanguage(stored || 'en', Boolean(stored));
   if (!stored) {
+    document.body.classList.add('lang-blocked');
     openLanguageSelector({ required: true });
+    await new Promise((resolve) => {
+      const off = onLanguageChange(() => {
+        off();
+        resolve();
+      });
+    });
+  } else {
+    await setLanguage(stored || 'en', Boolean(stored));
   }
+  document.body.classList.remove('lang-blocked');
 }
 
 function applyTranslations(scope = document) {

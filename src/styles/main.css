@@ -531,4 +531,8 @@
     white-space: nowrap;
     border: 0;
   }
+
+  .lang-blocked > *:not(.language-backdrop) {
+    display: none;
+  }
 }

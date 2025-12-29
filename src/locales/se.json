@@ -185,6 +185,7 @@
   "booking.policy.arrival": "Ankomstfönster: {value}.",
   "booking.policy.changes": "Ändra när som helst; en koordinator bekräftar före debitering.",
   "booking.policy.verified": "Vi matchar dig med verifierade städare. Omboka upp till 24h innan.",
+  "booking.policy.location": "Användaren tillät platsåtkomst för autofyll.",
   "booking.fields.category": "Kategori",
   "booking.fields.category.pending": "Inte satt",
   "booking.fields.address": "Adress",

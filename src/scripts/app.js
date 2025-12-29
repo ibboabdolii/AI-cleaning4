@@ -1,4 +1,5 @@
 import { initI18n, t, onLanguageChange, openLanguageSelector, getCurrentLanguage, formatWithLocale, applyTranslations } from './i18n.js';
+import { requestLocationAutofill, attachLandingLocationAutofill } from './useLocationAutofill.ts';
 import { detectIntent } from './nlp/intentEngine.ts';
 
 const storageKeys = {
@@ -649,37 +650,18 @@ function handleLocalIntent(detected) {
 }
 
 function requestLocationForAddress() {
-  if (!('geolocation' in navigator)) {
-    appendAssistant(t('chat.location.unsupported', 'Location is not supported on this device. Please enter your address manually.'));
-    return;
-  }
-  appendAssistant(t('chat.location.request', 'Please allow location to autofill your address.'));
-  navigator.geolocation.getCurrentPosition(
-    async (pos) => {
-      const { latitude, longitude } = pos.coords;
-      try {
-        const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`;
-        const res = await fetch(url, { headers: { 'Accept-Language': getCurrentLanguage() } });
-        const data = await res.json();
-        const address = data?.display_name || '';
-        if (address) {
-          const draft = setBookingDraft({ address, locationConsent: true });
-          renderDraftPanels(draft);
-          appendAssistant(t('chat.location.filled', 'Got it — I’ve autofilled your address from your location.'));
-        } else {
-          appendAssistant(t('chat.location.noAddress', 'Could not resolve your location to an address. Please type it manually.'));
-        }
-      } catch (error) {
-        console.warn('location reverse geocode error', error);
-        appendAssistant(t('chat.location.noAddress', 'Could not resolve your location to an address. Please type it manually.'));
-      }
+  requestLocationAutofill({
+    language: getCurrentLanguage(),
+    onAddress: (address) => {
+      const draft = setBookingDraft({ address, locationConsent: true });
+      renderDraftPanels(draft);
+      appendAssistant(t('chat.location.filled', 'Got it — I’ve autofilled your address from your location.'));
     },
-    (err) => {
-      console.warn('location permission denied', err);
-      appendAssistant(t('chat.location.denied', 'Location access denied. Please enter your address manually.'));
-    },
-    { enableHighAccuracy: true, timeout: 8000 }
-  );
+    onPolicy: () => {
+      const draft = setBookingDraft({ locationConsent: true });
+      renderDraftPanels(draft);
+    }
+  });
 }
 
 async function sendMessageToAI(message) {
@@ -1123,6 +1105,8 @@ function initLandingPage() {
     const input = form?.querySelector('input[name=\"location\"]');
     if (input) input.value = savedLocation;
   }
+
+  attachLandingLocationAutofill();
 
   chips.forEach((chip) => {
     chip.addEventListener('click', () => {
