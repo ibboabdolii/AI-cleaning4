@@ -254,6 +254,12 @@
   "chat.intent.support": "Jag loggar ditt ärende och håller support informerad.",
   "chat.intent.greet": "Hej! Jag kan starta eller uppdatera din bokning. Vad behöver du?",
   "chat.intent.generic": "Uppfattat — hanterar det nu.",
+  "chat.location.useMyLocation": "Använd min plats",
+  "chat.location.request": "Tillåt plats för att autofylla din adress.",
+  "chat.location.filled": "Klart — jag har fyllt i din adress från din plats.",
+  "chat.location.noAddress": "Kunde inte hitta en adress från platsen. Skriv in den manuellt.",
+  "chat.location.denied": "Platsåtkomst nekades. Ange din adress manuellt.",
+  "chat.location.unsupported": "Plats stöds inte på denna enhet. Ange din adress manuellt.",
 
   "status.na": "Ej tillämpligt",
   "status.captured": "Sparad",

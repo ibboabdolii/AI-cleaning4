@@ -255,6 +255,12 @@
   "chat.intent.support": "I’ll log your concern and keep support in the loop.",
   "chat.intent.greet": "Hi there! I can start or update your booking. What do you need?",
   "chat.intent.generic": "Got it — handling that now.",
+  "chat.location.useMyLocation": "Use my location",
+  "chat.location.request": "Please allow location to autofill your address.",
+  "chat.location.filled": "Got it — I’ve autofilled your address from your location.",
+  "chat.location.noAddress": "Could not resolve your location to an address. Please type it manually.",
+  "chat.location.denied": "Location access denied. Please enter your address manually.",
+  "chat.location.unsupported": "Location is not supported on this device. Please enter your address manually.",
 
   "status.na": "N/A",
   "status.captured": "Captured",

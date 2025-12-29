@@ -26,6 +26,7 @@ const defaultBookingDraft = {
   status: 'draft',
   category: null,
   address: '',
+  locationConsent: false,
   propertySize: '',
   frequency: '',
   dateTime: '',
@@ -511,6 +512,15 @@ function presentStep() {
     button.addEventListener('click', () => handleStepSelection(step, label));
     replies.appendChild(button);
   });
+
+  if (step.key === 'address') {
+    const locationBtn = document.createElement('button');
+    locationBtn.type = 'button';
+    locationBtn.className = 'quick-reply';
+    locationBtn.textContent = t('chat.location.useMyLocation', 'Use my location');
+    locationBtn.addEventListener('click', () => requestLocationForAddress());
+    replies.appendChild(locationBtn);
+  }
 }
 
 function handleStepSelection(step, value) {
@@ -638,6 +648,40 @@ function handleLocalIntent(detected) {
   }
 }
 
+function requestLocationForAddress() {
+  if (!('geolocation' in navigator)) {
+    appendAssistant(t('chat.location.unsupported', 'Location is not supported on this device. Please enter your address manually.'));
+    return;
+  }
+  appendAssistant(t('chat.location.request', 'Please allow location to autofill your address.'));
+  navigator.geolocation.getCurrentPosition(
+    async (pos) => {
+      const { latitude, longitude } = pos.coords;
+      try {
+        const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`;
+        const res = await fetch(url, { headers: { 'Accept-Language': getCurrentLanguage() } });
+        const data = await res.json();
+        const address = data?.display_name || '';
+        if (address) {
+          const draft = setBookingDraft({ address, locationConsent: true });
+          renderDraftPanels(draft);
+          appendAssistant(t('chat.location.filled', 'Got it — I’ve autofilled your address from your location.'));
+        } else {
+          appendAssistant(t('chat.location.noAddress', 'Could not resolve your location to an address. Please type it manually.'));
+        }
+      } catch (error) {
+        console.warn('location reverse geocode error', error);
+        appendAssistant(t('chat.location.noAddress', 'Could not resolve your location to an address. Please type it manually.'));
+      }
+    },
+    (err) => {
+      console.warn('location permission denied', err);
+      appendAssistant(t('chat.location.denied', 'Location access denied. Please enter your address manually.'));
+    },
+    { enableHighAccuracy: true, timeout: 8000 }
+  );
+}
+
 async function sendMessageToAI(message) {
   showTypingIndicator();
   try {
@@ -711,6 +755,7 @@ function renderDraftPanels(draftOverride) {
       <p>${t('booking.policy.arrival', 'Arrival window: {value}.').replace('{value}', draft.dateTime || t('booking.fields.schedule.pending', 'Set during chat'))}</p>
       <p>${t('booking.policy.changes', 'Change anytime; a CleanAI coordinator confirms before charging.')}</p>
       <p>${t('booking.policy.verified', 'We pair you with verified cleaners. Reschedule up to 24h in advance.')}</p>
+      ${draft.locationConsent ? `<p>${t('booking.policy.location', 'User allowed location access to autofill address.')}</p>` : ''}
     `;
   }
 

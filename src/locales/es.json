@@ -254,6 +254,12 @@
   "chat.intent.support": "Registraré tu problema e informaré al soporte.",
   "chat.intent.greet": "¡Hola! Puedo iniciar o actualizar tu reserva. ¿Qué necesitas?",
   "chat.intent.generic": "Entendido — lo gestiono ahora.",
+  "chat.location.useMyLocation": "Usar mi ubicación",
+  "chat.location.request": "Permite la ubicación para autocompletar tu dirección.",
+  "chat.location.filled": "Listo: he rellenado tu dirección con tu ubicación.",
+  "chat.location.noAddress": "No pude convertir tu ubicación en dirección. Escríbela manualmente.",
+  "chat.location.denied": "Acceso a ubicación denegado. Escribe tu dirección manualmente.",
+  "chat.location.unsupported": "La ubicación no está disponible en este dispositivo. Escribe tu dirección manualmente.",
 
   "status.na": "N/D",
   "status.captured": "Capturado",

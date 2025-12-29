@@ -254,6 +254,12 @@
   "chat.intent.support": "Ich notiere dein Anliegen und informiere den Support.",
   "chat.intent.greet": "Hallo! Ich kann deine Buchung starten oder aktualisieren. Wobei soll ich helfen?",
   "chat.intent.generic": "Verstanden — ich kümmere mich darum.",
+  "chat.location.useMyLocation": "Meinen Standort nutzen",
+  "chat.location.request": "Bitte erlaube den Standort, um die Adresse auszufüllen.",
+  "chat.location.filled": "Alles klar — Adresse wurde aus deinem Standort ausgefüllt.",
+  "chat.location.noAddress": "Dein Standort konnte keiner Adresse zugeordnet werden. Bitte gib sie manuell ein.",
+  "chat.location.denied": "Standortzugriff verweigert. Bitte gib deine Adresse manuell ein.",
+  "chat.location.unsupported": "Standort wird auf diesem Gerät nicht unterstützt. Bitte gib deine Adresse manuell ein.",
 
   "status.na": "k. A.",
   "status.captured": "Erfasst",
