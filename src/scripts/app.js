@@ -703,7 +703,8 @@ async function sendMessageToAI(message) {
     const ctx = {
       userId: user?.email || 'guest',
       sessionId: getAuthToken() || 'anonymous',
-      step: chatState.step
+      step: chatState.step,
+      bookingDraft: getBookingDraft()
     };
     const response = await fetch('/api/ai/chat', {
       method: 'POST',
