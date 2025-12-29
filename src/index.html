@@ -23,6 +23,7 @@
         <a class="hover:text-white transition" href="#why">Why CleanAI</a>
         <a class="hover:text-white transition" href="#flows">Customer</a>
         <a class="hover:text-white transition" href="#providers">Providers</a>
+        <a class="hover:text-white transition" href="#roadmap">UX Roadmap</a>
       </nav>
       <div class="flex items-center gap-3">
         <a class="btn-secondary rounded-full px-4 py-2 text-sm" href="/login.html">Log in</a>
@@ -159,6 +160,124 @@
           Start provider flow
           <span aria-hidden="true">→</span>
         </a>
+      </div>
+    </section>
+
+    <section id="roadmap" class="mt-20 space-y-6">
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div class="space-y-2">
+          <p class="pill w-fit">Premium booking UX roadmap</p>
+          <h2 class="text-2xl font-semibold text-white">High-trust, quote-first funnel for home, office, and hotel.</h2>
+          <p class="text-sm text-gray-300">Single primary action per screen, progressive disclosure, and AI that nudges—never surprises.</p>
+        </div>
+        <div class="glass-card rounded-2xl p-4 text-sm text-gray-200 sm:max-w-sm">
+          <div class="flex items-center justify-between">
+            <p class="font-semibold text-white">AI as guide, not chatbot</p>
+            <span class="pill">Guardrails</span>
+          </div>
+          <ul class="mt-3 space-y-1 text-gray-300">
+            <li>• Prefills defaults, clarifies edge cases, summarizes scope.</li>
+            <li>• Never sets price or availability; policy-based promises only.</li>
+            <li>• Chips and action cards over free-form chat.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="grid gap-4 lg:grid-cols-3">
+        <div class="surface-card rounded-3xl p-5">
+          <p class="pill mb-3">Experience pillars</p>
+          <ul class="space-y-2 text-sm text-gray-300">
+            <li>• Premium journey: calm gradients, concise copy, safe defaults.</li>
+            <li>• Single primary CTA per screen to reduce decision fatigue.</li>
+            <li>• Progressive disclosure with deterministically priced Quote Card always visible.</li>
+            <li>• Trust bar on every step: insurance, verified pros, no long contracts.</li>
+          </ul>
+        </div>
+        <div class="surface-card rounded-3xl p-5">
+          <p class="pill mb-3">Transparency & policies</p>
+          <ul class="space-y-2 text-sm text-gray-300">
+            <li>• Deterministic pricing with add-ons and VAT/discounts itemized.</li>
+            <li>• Cancellation, damages, and satisfaction policies shown before payment.</li>
+            <li>• “You’re protected” block in Details, Availability, and Payment screens.</li>
+            <li>• No surprises: arrival windows, duration, and inclusions checklist.</li>
+          </ul>
+        </div>
+        <div class="surface-card rounded-3xl p-5">
+          <p class="pill mb-3">Responsible AI</p>
+          <div class="space-y-2 text-sm text-gray-300">
+            <p class="text-white font-semibold">Use AI for</p>
+            <ul class="space-y-1">
+              <li>• Intent detection (move-out, post-reno, office nightly).</li>
+              <li>• Add-on suggestions and quick replies.</li>
+              <li>• Knowledge-base answers and summary checklists.</li>
+            </ul>
+            <p class="text-white font-semibold pt-2">Avoid AI for</p>
+            <ul class="space-y-1">
+              <li>• Pricing or availability decisions.</li>
+              <li>• Guarantees beyond policy copy.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="glass-card rounded-3xl border border-white/10 p-6">
+        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p class="pill mb-2">Journey</p>
+            <h3 class="text-xl font-semibold text-white">End-to-end flow</h3>
+            <p class="text-sm text-gray-300">Quote-first path with gated login, clear policies, and always-on trust signals.</p>
+          </div>
+          <div class="flex gap-2">
+            <span class="pill">Deterministic price</span>
+            <span class="pill">Progressive disclosure</span>
+            <span class="pill">Single CTA</span>
+          </div>
+        </div>
+        <div class="mt-5 grid gap-4 lg:grid-cols-2">
+          <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+            <p class="text-sm font-semibold text-white">Quote-first funnel</p>
+            <ol class="mt-3 space-y-3 text-sm text-gray-200">
+              <li><span class="pill mr-2">1</span>Landing: ZIP + segment (Home/Office/Hotel) → CTA “Get price & availability”.</li>
+              <li><span class="pill mr-2">2</span>Quote wizard: property type, beds/baths, frequency chips, add-ons, preferred window, visible Quote Card.</li>
+              <li><span class="pill mr-2">3</span>Account: email + OTP or Apple/Google; guest allowed until payment.</li>
+              <li><span class="pill mr-2">4</span>Booking details: address, access, phone, notes, supplies toggle, optional photos, “You’re protected” block.</li>
+              <li><span class="pill mr-2">5</span>Availability: calendar + slots with arrival window, duration, cancellation snippet; “ASAP” and AI nudges (e.g., best pricing times).</li>
+              <li><span class="pill mr-2">6</span>Payment: base + add-ons + VAT/discounts, cards + Apple/Google Pay, SEPA for B2B; policy confirmations.</li>
+              <li><span class="pill mr-2">7</span>Success: booking ID, Add to Calendar, Track/Modify/Support buttons.</li>
+            </ol>
+          </div>
+          <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+            <p class="text-sm font-semibold text-white">Post-booking & retention</p>
+            <ol class="mt-3 space-y-3 text-sm text-gray-200">
+              <li><span class="pill mr-2">8</span>Timeline: Confirmed → Assigned → En Route → In Progress → Completed → Review; 24h & 2h reminders.</li>
+              <li><span class="pill mr-2">9</span>Service delivery: provider check-in/out, checklist completion, optional photos, issue reporting; customer sees live status + support.</li>
+              <li><span class="pill mr-2">10</span>Completion: summary of tasks, add-ons, photos, issues/resolutions, final invoice or PDF audit pack for office/hotel.</li>
+              <li><span class="pill mr-2">11</span>Review loop: 1–5 stars + tags (Punctual, Thorough, Friendly, Followed instructions) and “Book again” with 1-click rebook/subscription offers.</li>
+              <li><span class="pill mr-2">12</span>AI retention nudges: “Schedule every 2 weeks?” with accept/decline chips and saved preferences.</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid gap-4 lg:grid-cols-[1.2fr,0.8fr]">
+        <div class="surface-card rounded-3xl p-5">
+          <p class="pill mb-3">AI-powered clarity</p>
+          <ul class="space-y-2 text-sm text-gray-300">
+            <li>• Contextual routing for home/office/hotel and after-hours office flagging.</li>
+            <li>• Move-out/post-reno intents preselect deep-clean defaults and show add-on pricing.</li>
+            <li>• Quick replies for availability, access, and policy questions; concise scope summaries before confirmation.</li>
+            <li>• AI suggestions stay deterministic: humans approve payments and schedules.</li>
+          </ul>
+        </div>
+        <div class="surface-card rounded-3xl p-5">
+          <p class="pill mb-3">Performance KPIs</p>
+          <ul class="space-y-2 text-sm text-gray-300">
+            <li>• Landing → Quote start rate.</li>
+            <li>• Quote → Checkout conversion and checkout completion.</li>
+            <li>• Reschedule/cancel rate; complaint/re-clean rate.</li>
+            <li>• Repeat bookings, subscription adoption, and average customer rating.</li>
+          </ul>
+        </div>
       </div>
     </section>
   </main>
