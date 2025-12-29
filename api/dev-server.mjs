@@ -14,7 +14,7 @@ app.post('/api/ai/chat', (req, res) => {
   const text = collected[collected.length - 1].content || '';
   const lower = text.toLowerCase();
   let nav;
-  let assistantMessage = `You said: "${text}". How can I help?`;
+  let assistantMessage = 'I can help with pricing, features, or booking details. What would you like to do?';
 
   if (/price|pricing/.test(lower)) {
     nav = 'pricing';

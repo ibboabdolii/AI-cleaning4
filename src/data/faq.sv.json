@@ -1,0 +1,11 @@
+{
+  "general.greeting": "Hej! Jag kan hjälpa dig boka eller uppdatera en städning. Vad behöver du?",
+  "general.help": "Berätta adress, storlek, tid eller frågor så uppdaterar jag ditt utkast.",
+  "general.why_guided": "Vi guidar chatten så pris och steg blir tydliga och du håller koll på utkastet.",
+  "faq.whats_included": "Standardstädning täcker ytor, golv, badrum och kök. Extras kan läggas till i chatten.",
+  "faq.pricing": "Priset beror på storlek, badrum och tillval; sammanfattningen visar allt innan du skickar in.",
+  "faq.cancel_policy": "Du kan avboka upp till 24h utan avgift. Närmare besök kan ge en kort varsel-avgift.",
+  "faq.payment": "Vi reserverar betalning före besöket och drar efter avslutad städning. Kort och faktura där det finns.",
+  "faq.insurance": "Städare är verifierade och täcks av ansvarsskydd vid incidenter.",
+  "faq.default": "Jag hjälper gärna! Fråga om pris, vad som ingår eller något i flödet så svarar jag." 
+}

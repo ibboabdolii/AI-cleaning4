@@ -2,6 +2,10 @@ import { initI18n, t, onLanguageChange, openLanguageSelector, getCurrentLanguage
 import { requestLocationAutofill, attachLandingLocationAutofill } from './useLocationAutofill.ts';
 import { detectIntent } from './nlp/intentEngine.ts';
 import { getGuidedPrompt, shouldStayInFlow } from './dialog/flowManager.ts';
+import faqEn from '../data/faq.en.json';
+import faqSv from '../data/faq.sv.json';
+import intentsEn from '../data/intents.en.json';
+import intentsSv from '../data/intents.sv.json';
 
 const storageKeys = {
   user: 'cleanai_user',
@@ -411,6 +415,17 @@ let chatState = { step: 0, started: false, typingNode: null };
 let fallbackShown = false;
 let safePingFallbackShown = false;
 
+const faqByLang = {
+  en: faqEn,
+  sv: faqSv,
+  se: faqSv
+};
+const intentsByLang = {
+  en: intentsEn,
+  sv: intentsSv,
+  se: intentsSv
+};
+
 function setupChatExperience() {
   const startBtn = document.getElementById('start-booking');
   const chatRegion = document.getElementById('chat-region');
@@ -463,6 +478,10 @@ function startGuidedChat() {
 
       const language = getCurrentLanguage();
       console.log('[Chat] lang, stepId', language, chatState.step);
+      if (handleFreeText(message, language)) {
+        setComposerPending(false);
+        return;
+      }
       const detected = detectIntent(message, language);
       if (detected) console.log('[Chat] intent match', detected);
       if (detected) {
@@ -686,6 +705,73 @@ function handleLocalIntent(detected) {
   if (intent === 'greet' && !chatState.started) {
     startGuidedChat();
   }
+}
+
+function normalizeText(value) {
+  return (value || '')
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}\s]/gu, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function bigramMap(text) {
+  const grams = new Map();
+  for (let i = 0; i < text.length - 1; i += 1) {
+    const gram = text.slice(i, i + 2);
+    grams.set(gram, (grams.get(gram) || 0) + 1);
+  }
+  return grams;
+}
+
+function diceSimilarity(a, b) {
+  if (!a || !b) return 0;
+  if (a === b) return 1;
+  const mapA = bigramMap(a);
+  const mapB = bigramMap(b);
+  let overlap = 0;
+  mapA.forEach((count, gram) => {
+    if (mapB.has(gram)) overlap += Math.min(count, mapB.get(gram));
+  });
+  return (2 * overlap) / (a.length + b.length - 2);
+}
+
+function detectLocalIntent(message, language) {
+  const langKey = language === 'se' ? 'sv' : language;
+  const catalog = intentsByLang[langKey] || intentsEn;
+  const normalizedMessage = normalizeText(message);
+  let bestIntent = null;
+  let bestScore = 0;
+  Object.entries(catalog).forEach(([phrase, intent]) => {
+    const normalizedPhrase = normalizeText(phrase);
+    if (!normalizedPhrase) return;
+    if (normalizedMessage === normalizedPhrase || normalizedMessage.includes(normalizedPhrase) || normalizedPhrase.includes(normalizedMessage)) {
+      bestIntent = intent;
+      bestScore = 1;
+      return;
+    }
+    const score = diceSimilarity(normalizedMessage, normalizedPhrase);
+    if (score >= 0.82 && score > bestScore) {
+      bestIntent = intent;
+      bestScore = score;
+    }
+  });
+  return bestIntent;
+}
+
+function getFaqAnswer(intent, language) {
+  const langKey = language === 'se' ? 'sv' : language;
+  const faq = faqByLang[langKey] || faqEn;
+  return faq[intent] || faqEn[intent] || faqEn['faq.default'];
+}
+
+function handleFreeText(message, language) {
+  const intent = detectLocalIntent(message, language);
+  if (!intent) return false;
+  const answer = getFaqAnswer(intent, language);
+  appendAssistant(answer || t('chat.intent.generic', 'Got it — handling that now.'));
+  if (chatState.started) presentStep();
+  return true;
 }
 
 function requestLocationForAddress() {

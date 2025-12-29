@@ -1,0 +1,11 @@
+{
+  "general.greeting": "Hi! I can help you book or update a cleaning. What do you need?",
+  "general.help": "Tell me your address, space size, time, or questions—I’ll keep your draft updated.",
+  "general.why_guided": "We guide the chat so pricing stays clear and you can follow every step.",
+  "faq.whats_included": "Standard cleaning covers surfaces, floors, bathrooms, and kitchen areas with clear steps in chat.",
+  "faq.pricing": "Pricing depends on size, bathrooms, and extras; the summary shows everything before you submit.",
+  "faq.cancel_policy": "You can cancel up to 24h without fees; closer to the visit may incur a short-notice charge.",
+  "faq.payment": "We place an authorization before the visit and capture after; cards and invoicing where available.",
+  "faq.insurance": "Our cleaners are verified and covered by liability protection for incidents.",
+  "faq.default": "I’m here to help—ask about pricing, what’s included, or booking and I’ll guide you."
+}

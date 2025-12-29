@@ -13,7 +13,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const text = incomingMessages[incomingMessages.length - 1]?.content || '';
   const lower = text.toLowerCase();
-  let nav, assistantMessage = `You said: "${text}". How can I help?`;
+  let nav, assistantMessage = 'I can help with pricing, features, or booking details. What would you like to do?';
   
   if (/price|pricing/.test(lower)) {
     nav = 'pricing';
