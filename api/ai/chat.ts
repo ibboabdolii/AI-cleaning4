@@ -5,12 +5,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ assistantMessage: 'Method not allowed' });
 
-  const { messages } = req.body || {};
-  if (!Array.isArray(messages) || !messages.length) {
+  const { messages, message } = req.body || {};
+  const incomingMessages = Array.isArray(messages) && messages.length ? messages : message ? [{ content: message }] : [];
+  if (!incomingMessages.length) {
     return res.status(400).json({ assistantMessage: 'Invalid request' });
   }
 
-  const text = messages[messages.length - 1]?.content || '';
+  const text = incomingMessages[incomingMessages.length - 1]?.content || '';
   const lower = text.toLowerCase();
   let nav, assistantMessage = `You said: "${text}". How can I help?`;
   
