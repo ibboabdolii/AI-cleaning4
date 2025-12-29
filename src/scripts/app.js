@@ -636,24 +636,15 @@ function appendIntentFeedback(message) {
 }
 
 async function handleFaqIntent(intent, language) {
-  try {
-    const langKey = language === 'se' ? 'se' : language === 'sv' ? 'sv' : language;
-    const faqModule = await import(`./faq/${langKey}.json`).catch(() => null);
-    const svFallback = langKey !== 'sv' ? await import('./faq/sv.json').catch(() => null) : null;
-    const seFallback = langKey !== 'se' ? await import('./faq/se.json').catch(() => null) : null;
-    const enFallback = langKey !== 'en' ? await import('./faq/en.json') : null;
-    const answer =
-      faqModule?.default?.[intent] ||
-      svFallback?.default?.[intent] ||
-      seFallback?.default?.[intent] ||
-      enFallback?.default?.[intent];
-    clearTypingIndicator();
-    appendAssistant(answer || t('chat.intent.generic', 'Got it — handling that now.'));
-  } catch (error) {
-    console.warn('faq intent load error', error);
-    clearTypingIndicator();
-    appendAssistant(t('chat.intent.generic', 'Got it — handling that now.'));
-  }
+  const answer = getFaqAnswer(intent, language);
+  clearTypingIndicator();
+  appendAssistant(
+    answer ||
+      t(
+        'chat.intent.generic',
+        'I’ll keep you in the guided flow—please share address, size, cadence, or timing.'
+      )
+  );
 }
 
 function appendUser(message) {

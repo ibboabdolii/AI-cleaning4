@@ -177,5 +177,6 @@
 "faq.response_time":"Respondemos lo antes posible; los casos urgentes se priorizan.",
 "faq.chat_history":"Puedes revisar el historial de este chat en la sesión.",
 "faq.estimate_accuracy":"Las cotizaciones son estimaciones; el precio final puede ajustarse en sitio.",
-"faq.taxes_invoice":"Podemos incluir IVA/impuestos en las facturas cuando se necesite."
+"faq.taxes_invoice":"Podemos incluir IVA/impuestos en las facturas cuando se necesite.",
+"faq.default":"Te mantengo en el flujo guiado: comparte dirección, tamaño, frecuencia u horario y actualizo el borrador."
 }

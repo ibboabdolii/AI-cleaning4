@@ -177,5 +177,6 @@
 "faq.response_time":"We try to respond quickly; urgent issues get prioritized.",
 "faq.chat_history":"You can review chat history in this session to see past answers.",
 "faq.estimate_accuracy":"Quotes are estimates; final price may adjust with on-site findings.",
-"faq.taxes_invoice":"We can include tax/VAT details on invoices when needed."
+"faq.taxes_invoice":"We can include tax/VAT details on invoices when needed.",
+"faq.default":"I’ll keep you in the guided flow—share your address, size, cadence, or timing and I’ll update the draft."
 }

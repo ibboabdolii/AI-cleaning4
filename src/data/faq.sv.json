@@ -177,5 +177,6 @@
 "faq.response_time":"Vi svarar så snabbt vi kan; akuta ärenden prioriteras.",
 "faq.chat_history":"Du kan se chatthistoriken i denna session för tidigare svar.",
 "faq.estimate_accuracy":"Offerter är uppskattningar; slutpris kan justeras efter platsstatus.",
-"faq.taxes_invoice":"Vi kan lägga till momsuppgifter på fakturor vid behov."
+"faq.taxes_invoice":"Vi kan lägga till momsuppgifter på fakturor vid behov.",
+"faq.default":"Jag håller dig i det guidande flödet—dela adress, storlek, intervall eller tid så uppdaterar jag utkastet."
 }

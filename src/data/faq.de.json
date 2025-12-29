@@ -177,5 +177,6 @@
 "faq.response_time":"Wir antworten so schnell wie möglich; dringende Fälle priorisieren wir.",
 "faq.chat_history":"Du kannst den Chatverlauf dieser Sitzung einsehen.",
 "faq.estimate_accuracy":"Angebote sind Schätzungen; der Endpreis kann vor Ort angepasst werden.",
-"faq.taxes_invoice":"Wir können Steuer/MwSt-Angaben auf Rechnungen ergänzen, wenn nötig."
+"faq.taxes_invoice":"Wir können Steuer/MwSt-Angaben auf Rechnungen ergänzen, wenn nötig.",
+"faq.default":"Ich halte dich im geführten Ablauf—nenne Adresse, Größe, Rhythmus oder Zeit, dann aktualisiere ich den Entwurf."
 }
