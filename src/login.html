@@ -15,24 +15,27 @@
       <a class="flex items-center gap-3" href="/index.html">
         <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/10 text-lg font-bold">CAI</div>
         <div>
-          <p class="text-sm uppercase tracking-[0.2em] text-gray-400">CleanAI</p>
-          <p class="text-sm text-gray-300">Premium cleaning</p>
+          <p class="text-sm uppercase tracking-[0.2em] text-gray-400" data-i18n="app.brand">CleanAI</p>
+          <p class="text-sm text-gray-300" data-i18n="auth.tagline">Premium cleaning</p>
         </div>
       </a>
-      <a class="text-sm font-semibold text-gray-300 underline-offset-4 hover:text-white" href="/register.html">Create account</a>
+      <div class="flex items-center gap-3">
+        <button id="language-launcher" type="button" class="rounded-full border border-white/10 px-3 py-2 text-xs text-gray-200 transition hover:border-white/30 hover:text-white" data-i18n="language.switch">Language</button>
+        <a class="text-sm font-semibold text-gray-300 underline-offset-4 hover:text-white" href="/register.html" data-i18n="auth.create">Create account</a>
+      </div>
     </header>
 
     <div class="grid gap-10 lg:grid-cols-2">
       <div class="space-y-4">
-        <p class="pill w-fit">Secure login</p>
-        <h1 class="text-3xl font-bold sm:text-4xl">Welcome back</h1>
-        <p class="text-gray-300">Access your structured booking or provider onboarding with role-aware routing.</p>
+        <p class="pill w-fit" data-i18n="auth.login.badge">Secure login</p>
+        <h1 class="text-3xl font-bold sm:text-4xl" data-i18n="auth.login.title">Welcome back</h1>
+        <p class="text-gray-300" data-i18n="auth.login.subtitle">Access your structured booking or provider onboarding with role-aware routing.</p>
         <div class="rounded-3xl border border-white/10 bg-white/5 p-4 text-sm text-gray-300">
-          <p class="font-semibold text-white">Why log in?</p>
+          <p class="font-semibold text-white" data-i18n="auth.login.why.title">Why log in?</p>
           <ul class="mt-2 space-y-1 list-disc list-inside">
-            <li>Resume customer booking chat with saved draft.</li>
-            <li>Continue provider onboarding wizard.</li>
-            <li>Role-aware redirects keep tenants separated.</li>
+            <li data-i18n="auth.login.why.point1">Resume customer booking chat with saved draft.</li>
+            <li data-i18n="auth.login.why.point2">Continue provider onboarding wizard.</li>
+            <li data-i18n="auth.login.why.point3">Role-aware redirects keep tenants separated.</li>
           </ul>
         </div>
       </div>
@@ -40,17 +43,17 @@
       <div class="glass-card rounded-3xl p-6">
         <form id="login-form" class="space-y-4" novalidate>
           <div>
-            <label class="block text-sm text-gray-300" for="login-email">Email</label>
-            <input id="login-email" name="email" type="email" required placeholder="you@example.com" class="mt-2 w-full rounded-2xl bg-gray-900/60 px-4 py-3 text-white outline-none ring-1 ring-white/10 focus:ring-2 focus:ring-emerald-400">
+            <label class="block text-sm text-gray-300" for="login-email" data-i18n="auth.email">Email</label>
+            <input id="login-email" name="email" type="email" required placeholder="you@example.com" class="mt-2 w-full rounded-2xl bg-gray-900/60 px-4 py-3 text-white outline-none ring-1 ring-white/10 focus:ring-2 focus:ring-emerald-400" data-i18n-attr="placeholder" data-i18n-key="auth.email.placeholder">
           </div>
           <div>
-            <label class="block text-sm text-gray-300" for="login-password">Password</label>
-            <input id="login-password" name="password" type="password" required minlength="8" placeholder="••••••••" class="mt-2 w-full rounded-2xl bg-gray-900/60 px-4 py-3 text-white outline-none ring-1 ring-white/10 focus:ring-2 focus:ring-emerald-400">
-            <p class="mt-1 text-xs text-gray-400">Minimum 8 characters. We never show raw passwords in logs.</p>
+            <label class="block text-sm text-gray-300" for="login-password" data-i18n="auth.password">Password</label>
+            <input id="login-password" name="password" type="password" required minlength="8" placeholder="••••••••" class="mt-2 w-full rounded-2xl bg-gray-900/60 px-4 py-3 text-white outline-none ring-1 ring-white/10 focus:ring-2 focus:ring-emerald-400" data-i18n-attr="placeholder" data-i18n-key="auth.password.placeholder">
+            <p class="mt-1 text-xs text-gray-400" data-i18n="auth.password.hint">Minimum 8 characters. We never show raw passwords in logs.</p>
           </div>
           <div class="text-sm text-rose-300" id="login-error" role="alert"></div>
-          <button type="submit" class="btn-primary w-full rounded-2xl py-3 text-center text-sm font-semibold">Login & continue</button>
-          <p class="text-center text-sm text-gray-400">No account? <a class="text-emerald-300 underline-offset-4 hover:text-emerald-200" href="/register.html">Register</a></p>
+          <button type="submit" class="btn-primary w-full rounded-2xl py-3 text-center text-sm font-semibold" data-i18n="auth.login.cta">Login & continue</button>
+          <p class="text-center text-sm text-gray-400" data-i18n-html="true" data-i18n="auth.login.switch">No account? <a class="text-emerald-300 underline-offset-4 hover:text-emerald-200" href="/register.html">Register</a></p>
         </form>
       </div>
     </div>
