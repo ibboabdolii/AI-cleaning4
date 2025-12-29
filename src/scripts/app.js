@@ -33,6 +33,7 @@ const defaultBookingDraft = {
   status: 'draft',
   category: null,
   address: '',
+  locationType: '',
   propertySize: '',
   frequency: '',
   dateTime: '',
@@ -250,6 +251,16 @@ function formatRelativeDate(daysAhead, time) {
   const date = new Date();
   date.setDate(date.getDate() + daysAhead);
   return `${date.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })} · ${time}`;
+}
+
+function getLocaleStrings() {
+  const isSwedish = (navigator.language || '').toLowerCase().startsWith('sv');
+  return {
+    locationPrompt: isSwedish ? 'Tillåt platsåtkomst för att fylla i din adress.' : 'Please allow location access to fill your address.',
+    locationError: isSwedish ? 'Kunde inte hämta plats. Ange adress manuellt.' : 'Could not fetch your location. Please enter the address manually.',
+    locationAdded: (address) => (isSwedish ? `La till din plats: ${address}` : `Added your location: ${address}`),
+    locationChip: isSwedish ? 'Använd min plats' : 'Use my location'
+  };
 }
 
 function showError(target, message) {
@@ -522,6 +533,14 @@ function presentStep() {
     button.addEventListener('click', () => handleStepSelection(step, label));
     replies.appendChild(button);
   });
+  if (step.key === 'address') {
+    const locButton = document.createElement('button');
+    locButton.type = 'button';
+    locButton.className = 'quick-reply';
+    locButton.textContent = getLocaleStrings().locationChip;
+    locButton.addEventListener('click', () => handleLocationAutofill(step));
+    replies.appendChild(locButton);
+  }
 }
 
 function handleStepSelection(step, value) {
@@ -538,6 +557,71 @@ function handleStepSelection(step, value) {
   setBookingDraft(nextDraft);
   renderDraftPanels(nextDraft);
   moveToNextStep();
+}
+
+async function reverseGeocode(lat, lon) {
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), 8000);
+  try {
+    const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`, {
+      headers: { 'Accept-Language': navigator.language || 'en' },
+      signal: controller.signal
+    });
+    window.clearTimeout(timeout);
+    if (!response.ok) throw new Error(`Reverse geocode failed with status ${response.status}`);
+    const data = await response.json();
+    const address = data?.address || {};
+    const postcode = address.postcode || '';
+    const city = address.city || address.town || address.village || address.hamlet || '';
+    let computed = `${postcode} ${city}`.trim();
+    if (!computed && data?.display_name) {
+      computed = String(data.display_name).split(',').slice(0, 3).join(', ').trim();
+    }
+    if (!computed) throw new Error('Unable to parse address');
+    return computed;
+  } finally {
+    window.clearTimeout(timeout);
+  }
+}
+
+function applyLocationAddress(step, address) {
+  const draftUpdate = setBookingDraft({ address, locationType: 'home' });
+  sessionStorage.setItem(sessionKeys.landingLocation, address);
+  renderDraftPanels(draftUpdate);
+  const landingInput = document.querySelector('input[name="location"]');
+  if (landingInput) {
+    landingInput.value = address;
+    landingInput.dispatchEvent(new Event('input', { bubbles: true }));
+    landingInput.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+  appendAssistant(getLocaleStrings().locationAdded(address));
+  handleStepSelection(step, address);
+}
+
+function handleLocationAutofill(step) {
+  const { locationPrompt, locationError } = getLocaleStrings();
+  appendAssistant(locationPrompt);
+  if (!navigator.geolocation) {
+    appendAssistant(locationError);
+    return;
+  }
+  navigator.geolocation.getCurrentPosition(
+    async (position) => {
+      const { latitude, longitude } = position.coords;
+      try {
+        const address = await reverseGeocode(latitude, longitude);
+        applyLocationAddress(step, address);
+      } catch (error) {
+        console.error('Reverse geocode failed', error);
+        appendAssistant(locationError);
+      }
+    },
+    (error) => {
+      console.error('Geolocation error', error);
+      appendAssistant(locationError);
+    },
+    { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
+  );
 }
 
 function moveToNextStep() {
