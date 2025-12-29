@@ -607,7 +607,7 @@ function appendIntentFeedback(message) {
 
 async function handleFaqIntent(intent, language) {
   try {
-    const faqModule = await import(`./faq/${language}.json`);
+    const faqModule = await import(`./faq/${language}.json`).catch(() => null);
     const fallback = language !== 'en' ? await import('./faq/en.json') : null;
     const answer = faqModule?.default?.[intent] || fallback?.default?.[intent];
     clearTypingIndicator();
@@ -1122,12 +1122,12 @@ function initLandingPage() {
     const match = chips.find((c) => c.dataset.segment === savedSegment);
     if (match) match.classList.add('active');
   }
-  if (savedLocation) {
-    const input = form?.querySelector('input[name=\"location\"]');
-    if (input) input.value = savedLocation;
+  const locationInput = form?.querySelector('input[name=\"location\"]');
+  if (savedLocation && locationInput) {
+    locationInput.value = savedLocation;
+  } else if (locationInput) {
+    attachLandingLocationAutofill();
   }
-
-  attachLandingLocationAutofill();
 
   chips.forEach((chip) => {
     chip.addEventListener('click', () => {

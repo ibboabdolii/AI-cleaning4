@@ -1,9 +1,10 @@
 import enCatalog from './intents/en.json';
 import seCatalog from './intents/se.json';
+import svCatalog from './intents/sv.json';
 import deCatalog from './intents/de.json';
 import esCatalog from './intents/es.json';
 
-export type SupportedLanguage = 'en' | 'se' | 'de' | 'es';
+export type SupportedLanguage = 'en' | 'se' | 'sv' | 'de' | 'es';
 export type DetectedIntent = {
   intent: string;
   match: string;
@@ -15,6 +16,7 @@ type Catalog = Record<string, string>;
 const catalogs: Record<SupportedLanguage, Catalog> = {
   en: enCatalog as Catalog,
   se: seCatalog as Catalog,
+  sv: svCatalog as Catalog,
   de: deCatalog as Catalog,
   es: esCatalog as Catalog
 };
@@ -46,8 +48,9 @@ function evaluateCatalog(message: string, catalog: Catalog, language: SupportedL
   return null;
 }
 
-export function detectIntent(message: string, language: SupportedLanguage = 'en'): DetectedIntent | null {
-  const primary = catalogs[language] ? (language as SupportedLanguage) : 'en';
+export function detectIntent(message: string, language: SupportedLanguage | string = 'en'): DetectedIntent | null {
+  const langKey = (language as string) === 'sv' ? 'sv' : language;
+  const primary = catalogs[langKey as SupportedLanguage] ? (langKey as SupportedLanguage) : 'en';
   const primaryResult = evaluateCatalog(message, catalogs[primary], primary);
   if (primaryResult) return primaryResult;
 

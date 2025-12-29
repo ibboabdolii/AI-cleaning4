@@ -5,9 +5,9 @@ async function reverseGeocode(lat: number, lon: number, lang: string) {
   const res = await fetch(url, { headers: { 'Accept-Language': lang || 'en' } });
   const data = await res.json();
   const address = data?.address || {};
-  const city = address.city || address.town || address.village || address.hamlet || '';
+  const city = address.city || address.town || address.village || address.hamlet || address.municipality || '';
   const postcode = address.postcode || '';
-  const label = [postcode, city].filter(Boolean).join(' ') || data?.display_name || '';
+  const label = [postcode, city].filter(Boolean).join(' ').trim() || data?.display_name || '';
   return label;
 }
 
