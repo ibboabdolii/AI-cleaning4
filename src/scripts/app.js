@@ -607,9 +607,16 @@ function appendIntentFeedback(message) {
 
 async function handleFaqIntent(intent, language) {
   try {
-    const faqModule = await import(`./faq/${language}.json`).catch(() => null);
-    const fallback = language !== 'en' ? await import('./faq/en.json') : null;
-    const answer = faqModule?.default?.[intent] || fallback?.default?.[intent];
+    const langKey = language === 'se' ? 'se' : language === 'sv' ? 'sv' : language;
+    const faqModule = await import(`./faq/${langKey}.json`).catch(() => null);
+    const svFallback = langKey !== 'sv' ? await import('./faq/sv.json').catch(() => null) : null;
+    const seFallback = langKey !== 'se' ? await import('./faq/se.json').catch(() => null) : null;
+    const enFallback = langKey !== 'en' ? await import('./faq/en.json') : null;
+    const answer =
+      faqModule?.default?.[intent] ||
+      svFallback?.default?.[intent] ||
+      seFallback?.default?.[intent] ||
+      enFallback?.default?.[intent];
     clearTypingIndicator();
     appendAssistant(answer || t('chat.intent.generic', 'Got it — handling that now.'));
   } catch (error) {
@@ -677,6 +684,8 @@ function requestLocationForAddress() {
       const draft = setBookingDraft({ address, locationConsent: true });
       renderDraftPanels(draft);
       appendAssistant(t('chat.location.filled', 'Got it — I’ve autofilled your address from your location.'));
+      const input = document.getElementById('custom-reply');
+      if (input) input.value = address;
     },
     onPolicy: () => {
       const draft = setBookingDraft({ locationConsent: true });
@@ -690,10 +699,16 @@ async function sendMessageToAI(message) {
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 4500);
+    const user = getUser();
+    const ctx = {
+      userId: user?.email || 'guest',
+      sessionId: getAuthToken() || 'anonymous',
+      step: chatState.step
+    };
     const response = await fetch('/api/ai/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message, lang: getCurrentLanguage() }),
+      body: JSON.stringify({ message, lang: getCurrentLanguage(), context: ctx }),
       signal: controller.signal
     });
     clearTimeout(timeout);
