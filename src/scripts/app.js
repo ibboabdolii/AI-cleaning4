@@ -5,7 +5,9 @@ const storageKeys = {
   booking: 'cleanai_booking_draft'
 };
 const sessionKeys = {
-  rolePreference: 'cleanai_role_pref'
+  rolePreference: 'cleanai_role_pref',
+  landingSegment: 'cleanai_landing_segment',
+  landingLocation: 'cleanai_landing_location'
 };
 
 const defaultProfile = {
@@ -737,10 +739,56 @@ function initNavLinks() {
   });
 }
 
+function initLandingPage() {
+  const form = document.getElementById('landing-intake');
+  const errorEl = document.getElementById('landing-error');
+  const chips = Array.from(document.querySelectorAll('[data-segment]'));
+  const savedSegment = sessionStorage.getItem(sessionKeys.landingSegment);
+  const savedLocation = sessionStorage.getItem(sessionKeys.landingLocation);
+
+  if (savedSegment) {
+    const match = chips.find((c) => c.dataset.segment === savedSegment);
+    if (match) match.classList.add('active');
+  }
+  if (savedLocation) {
+    const input = form?.querySelector('input[name=\"location\"]');
+    if (input) input.value = savedLocation;
+  }
+
+  chips.forEach((chip) => {
+    chip.addEventListener('click', () => {
+      chips.forEach((c) => c.classList.remove('active'));
+      chip.classList.add('active');
+      sessionStorage.setItem(sessionKeys.landingSegment, chip.dataset.segment);
+    });
+  });
+
+  form?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const location = form.elements['location']?.value?.trim();
+    const activeSegment = chips.find((c) => c.classList.contains('active'))?.dataset.segment;
+    if (!location) {
+      if (errorEl) errorEl.textContent = 'Add your ZIP or city to get availability.';
+      return;
+    }
+    if (!activeSegment) {
+      if (errorEl) errorEl.textContent = 'Choose Home, Office, or Hotel to continue.';
+      return;
+    }
+    sessionStorage.setItem(sessionKeys.landingLocation, location);
+    sessionStorage.setItem(sessionKeys.landingSegment, activeSegment);
+    sessionStorage.setItem(sessionKeys.rolePreference, 'customer');
+    window.location.href = '/register.html';
+  });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const page = document.body.dataset.page;
   initNavLinks();
   switch (page) {
+    case 'landing':
+      initLandingPage();
+      break;
     case 'login':
       initAuthPage('login');
       break;

@@ -32,64 +32,73 @@
   </header>
 
   <main class="mx-auto max-w-6xl px-6 pb-20 pt-16 sm:pt-24">
-    <section class="grid gap-8 lg:grid-cols-[2fr,1.2fr]">
+    <section class="grid gap-8 lg:grid-cols-[1.4fr,1.2fr]">
       <div class="space-y-6">
         <p class="pill animate w-fit">Multi-tenant · Secure · AI-guided</p>
         <h1 class="text-4xl font-bold leading-tight text-white sm:text-5xl">
-          Book or offer cleaning in minutes with a guided, trustworthy AI experience.
+          Book trusted home, office, or hotel cleaning in minutes.
         </h1>
         <p class="text-lg text-gray-300">
-          CleanAI pairs structured chat with clear onboarding to keep customers and providers on track.
-          Fast flows, locked-down access, and responsive layouts built for teams on the go.
+          A guided quote-first journey with transparent pricing, RBAC-safe onboarding, and AI that nudges—not overwhelms.
         </p>
-        <div class="flex flex-wrap gap-3">
-          <a class="btn-primary rounded-full px-6 py-3 text-sm" href="/register.html">Start as customer</a>
-          <a class="btn-secondary rounded-full px-6 py-3 text-sm" href="/register.html#provider">Become a provider</a>
-        </div>
-        <div class="flex flex-wrap gap-4 text-sm text-gray-400">
-          <div class="flex items-center gap-2">
-            <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
-            <span>Structured booking chat</span>
+        <form id="landing-intake" class="glass-card grid gap-3 rounded-3xl p-4 sm:grid-cols-[1.2fr,1fr]">
+          <div class="sm:col-span-2 text-sm text-gray-300">Tell us where and what you need cleaned to get a price & availability.</div>
+          <label class="flex flex-col gap-2 text-sm text-gray-300">
+            Location (ZIP / city)
+            <input name="location" required placeholder="e.g., 10117 Berlin" class="rounded-2xl bg-gray-900/60 px-4 py-3 text-white outline-none ring-1 ring-white/10 focus:ring-2 focus:ring-emerald-400">
+          </label>
+          <div class="flex flex-col gap-2 text-sm text-gray-300">
+            Segment
+            <div class="inline-flex flex-wrap gap-2" role="group" aria-label="Segment selector">
+              <button type="button" data-segment="home" class="chip">Home</button>
+              <button type="button" data-segment="office" class="chip">Office</button>
+              <button type="button" data-segment="hotel" class="chip">Hotel</button>
+            </div>
           </div>
-          <div class="flex items-center gap-2">
-            <span class="h-2 w-2 rounded-full bg-indigo-400"></span>
-            <span>Provider onboarding wizard</span>
+          <button type="submit" class="btn-primary rounded-2xl py-3 text-sm font-semibold sm:col-span-2">Get price & availability</button>
+          <p class="text-xs text-gray-400 sm:col-span-2">AI helper: “I can get your quote in 60 seconds. Home, office, or hotel?”</p>
+          <p id="landing-error" class="text-sm text-rose-300 sm:col-span-2"></p>
+        </form>
+        <div class="grid gap-3 text-sm text-gray-300 sm:grid-cols-2">
+          <div class="surface-card rounded-2xl p-4">
+            <p class="font-semibold text-white">Trust</p>
+            <p class="mt-1">✅ Insurance · 🧼 Verified pros · 🚫 No long contracts</p>
           </div>
-          <div class="flex items-center gap-2">
-            <span class="h-2 w-2 rounded-full bg-amber-400"></span>
-            <span>RBAC routing guardrails</span>
+          <div class="surface-card rounded-2xl p-4">
+            <p class="font-semibold text-white">Fast</p>
+            <p class="mt-1">Quote wizard → Onboarding → Booking chat with live draft.</p>
           </div>
         </div>
       </div>
       <div class="glass-card rounded-3xl border border-white/10 p-6 shadow-2xl">
         <div class="flex items-center justify-between border-b border-white/5 pb-4">
           <div>
-            <p class="text-xs uppercase tracking-[0.2em] text-gray-400">Booking Draft</p>
-            <p class="text-lg font-semibold text-white">Home cleaning · Berlin</p>
+            <p class="text-xs uppercase tracking-[0.2em] text-gray-400">Quote preview</p>
+            <p class="text-lg font-semibold text-white">Home · 2 bed · Weekly</p>
           </div>
-          <span class="rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-300">Live</span>
+          <span class="rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-300">Deterministic</span>
         </div>
         <div class="mt-4 space-y-3 text-sm text-gray-300">
           <div class="flex items-start justify-between rounded-2xl bg-white/5 px-4 py-3">
             <div>
-              <p class="text-white">Address</p>
-              <p class="text-gray-400">Weinbergsweg 12, Berlin</p>
+              <p class="text-white">Estimate</p>
+              <p class="text-gray-400">2.5 hours · €110</p>
             </div>
-            <span class="pill">Next</span>
+            <span class="pill">No surprises</span>
           </div>
           <div class="flex items-start justify-between rounded-2xl bg-white/5 px-4 py-3">
             <div>
-              <p class="text-white">Size & frequency</p>
-              <p class="text-gray-400">2 BR · Weekly</p>
+              <p class="text-white">Included</p>
+              <p class="text-gray-400">Surfaces, floors, bathrooms, kitchen wipe-down</p>
             </div>
-            <span class="pill">AI guided</span>
+            <span class="pill">Checklist</span>
           </div>
           <div class="flex items-start justify-between rounded-2xl bg-white/5 px-4 py-3">
             <div>
-              <p class="text-white">Schedule</p>
-              <p class="text-gray-400">Tuesday · 9:00</p>
+              <p class="text-white">Add-ons</p>
+              <p class="text-gray-400">Oven · Windows · Deep clean</p>
             </div>
-            <span class="pill">Draft</span>
+            <span class="pill">Optional</span>
           </div>
         </div>
         <div class="mt-6 rounded-2xl border border-white/5 bg-gradient-to-br from-gray-900 to-gray-800 p-4">
