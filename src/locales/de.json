@@ -1,6 +1,10 @@
 {
   "language.title": "Sprache wählen",
   "language.subtitle": "Deine Auswahl steuert UI und Chat-Antworten.",
+  "language.subtitleHint": "Verfügbar: DE / SE / ES / EN",
+  "language.badge": "Start hier",
+  "language.helper": "Wähle eine Sprache, um dich anzumelden.",
+  "language.continue": "Weiter",
   "language.dismiss": "Mit Englisch fortfahren",
   "language.switch": "Sprache",
 

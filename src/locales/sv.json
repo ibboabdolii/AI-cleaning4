@@ -1,6 +1,10 @@
 {
   "language.title": "Välj språk",
   "language.subtitle": "Ditt val uppdaterar både gränssnittet och chattens svar.",
+  "language.subtitleHint": "Tillgängligt: DE / SE / ES / EN",
+  "language.badge": "Börja här",
+  "language.helper": "Välj ett språk för att fortsätta till inloggning.",
+  "language.continue": "Fortsätt",
   "language.dismiss": "Fortsätt på engelska",
   "language.switch": "Språk",
 

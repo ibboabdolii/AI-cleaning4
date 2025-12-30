@@ -1,6 +1,10 @@
 {
   "language.title": "Choose your language",
   "language.subtitle": "Your choice will update the UI and chat replies.",
+  "language.subtitleHint": "Available: DE / SE / ES / EN",
+  "language.badge": "Start here",
+  "language.helper": "Select a language to continue to sign-in.",
+  "language.continue": "Continue",
   "language.dismiss": "Continue with English",
   "language.switch": "Language",
 

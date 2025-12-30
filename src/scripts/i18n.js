@@ -1,18 +1,18 @@
 const localeFiles = {
   en: new URL('../locales/en.json', import.meta.url).href,
-  se: new URL('../locales/se.json', import.meta.url).href,
+  sv: new URL('../locales/sv.json', import.meta.url).href,
   de: new URL('../locales/de.json', import.meta.url).href,
   es: new URL('../locales/es.json', import.meta.url).href
 };
 
 const languageMeta = {
-  en: { label: 'English', locale: 'en-US', native: 'English', flag: '🇬🇧' },
-  se: { label: 'Svenska', locale: 'sv-SE', native: 'Swedish', flag: '🇸🇪' },
-  de: { label: 'Deutsch', locale: 'de-DE', native: 'Deutsch', flag: '🇩🇪' },
-  es: { label: 'Español', locale: 'es-ES', native: 'Español', flag: '🇪🇸' }
+  en: { label: 'EN — English', locale: 'en', native: 'English', flag: '🇬🇧' },
+  sv: { label: 'SE — Svenska', locale: 'sv', native: 'Svenska', flag: '🇸🇪' },
+  de: { label: 'DE — Deutsch', locale: 'de', native: 'Deutsch', flag: '🇩🇪' },
+  es: { label: 'ES — Español', locale: 'es', native: 'Español', flag: '🇪🇸' }
 };
 
-const languageKey = 'lang';
+const languageKey = 'helpro.locale';
 let translations = {};
 let fallbackTranslations = {};
 let currentLanguage = 'en';
@@ -45,7 +45,7 @@ function formatWithLocale(date, lang = currentLanguage, options = {}) {
 }
 
 function getStoredLanguage() {
-  return localStorage.getItem(languageKey) || localStorage.getItem('cleanai_language');
+  return localStorage.getItem(languageKey);
 }
 
 async function setLanguage(lang, persist = true) {
@@ -62,9 +62,9 @@ async function setLanguage(lang, persist = true) {
   }
   if (persist) {
     localStorage.setItem(languageKey, target);
-    localStorage.setItem('languageSelected', 'true');
   }
   document.documentElement.lang = languageMeta[target]?.locale || 'en';
+  document.documentElement.dir = 'ltr';
   applyTranslations();
   listeners.forEach((cb) => cb(target));
   closeSelector();
