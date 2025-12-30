@@ -41,6 +41,7 @@
 
   <main class="mx-auto flex min-h-[80vh] max-w-4xl flex-col justify-center px-6 py-12">
     <section class="glass-card rounded-3xl border border-white/10 bg-white/60 p-8 shadow-xl backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
+      <div id="env-error" class="alert mb-4 hidden">Supabase env vars are missing. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.</div>
       <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <p class="text-sm font-semibold text-emerald-600 dark:text-emerald-300">Welcome back</p>
@@ -80,9 +81,18 @@
           </form>
         </div>
       </div>
+      <div id="auth-debug" class="mt-6 rounded-2xl border border-dashed border-white/20 bg-white/40 p-4 text-sm text-gray-700 dark:bg-white/5 dark:text-gray-200 hidden">
+        <p class="font-semibold mb-2">Debug Auth (dev-only)</p>
+        <ul class="space-y-1">
+          <li>Origin: <span id="debug-origin"></span></li>
+          <li>Env present: <span id="debug-env"></span></li>
+          <li>Session email: <span id="debug-email"></span></li>
+          <li>Last auth error: <span id="debug-error"></span></li>
+        </ul>
+      </div>
     </section>
   </main>
 
-  <script type="module" src="./scripts/auth-page.ts"></script>
+  <script type="module" src="./pages/auth.ts"></script>
 </body>
 </html>

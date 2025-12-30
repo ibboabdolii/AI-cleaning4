@@ -1,6 +1,10 @@
-import { bindThemeToggle, initTheme } from './theme.js';
-import { setLanguage } from './i18n.js';
-import { sendEmailOtp, verifyEmailOtp } from '../lib/auth.ts';
+import { bindThemeToggle, initTheme } from '../scripts/theme.js';
+import { setLanguage } from '../scripts/i18n.js';
+import { getSession, sendEmailOtp, verifyEmailOtp } from '../lib/auth.ts';
+
+const envOk = Boolean(import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY);
+let lastError = '';
+let lastSessionEmail = '';
 
 let email = '';
 let mode: 'login' | 'register' = 'login';
@@ -12,6 +16,28 @@ function readParams() {
   email = params.get('email') || '';
   const requestedMode = params.get('mode');
   if (requestedMode === 'register') mode = 'register';
+}
+
+function showEnvWarning() {
+  if (envOk) return;
+  console.error('Supabase env vars missing: VITE_SUPABASE_URL and/or VITE_SUPABASE_ANON_KEY');
+  const banner = document.getElementById('env-error');
+  if (banner) banner.classList.remove('hidden');
+}
+
+function updateDebug() {
+  const debug = document.getElementById('auth-debug');
+  if (!debug) return;
+  if (!import.meta.env.DEV && !new URLSearchParams(window.location.search).has('debug')) return;
+  debug.classList.remove('hidden');
+  const originEl = document.getElementById('debug-origin');
+  const envEl = document.getElementById('debug-env');
+  const emailEl = document.getElementById('debug-email');
+  const errorEl = document.getElementById('debug-error');
+  if (originEl) originEl.textContent = window.location.origin;
+  if (envEl) envEl.textContent = envOk ? 'yes' : 'missing';
+  if (emailEl) emailEl.textContent = lastSessionEmail || '—';
+  if (errorEl) errorEl.textContent = lastError || '—';
 }
 
 function startCooldown() {
@@ -34,35 +60,41 @@ async function handleVerify() {
   const input = document.getElementById('otp-code') as HTMLInputElement | null;
   const status = document.getElementById('verify-status');
   if (!email || !input) {
-    status && (status.textContent = 'Missing email or code.');
+    if (status) status.textContent = 'Missing email or code.';
     return;
   }
   const token = input.value.trim();
   if (token.length < 6) {
-    status && (status.textContent = 'Enter the 6-digit code.');
+    if (status) status.textContent = 'Enter the 6-digit code.';
     return;
   }
-  status && (status.textContent = 'Verifying...');
+  if (status) status.textContent = 'Verifying...';
   try {
     await verifyEmailOtp(email, token);
-    status && (status.textContent = 'Verified. Please log in. Redirecting...');
+    if (status) status.textContent = 'Verified. Please log in. Redirecting...';
     const next = new URL('/auth.html', window.location.origin);
     next.hash = '#login';
     setTimeout(() => (window.location.href = next.toString()), 800);
   } catch (error: any) {
-    status && (status.textContent = error?.message || 'Verification failed');
+    lastError = error?.message || 'Verification failed';
+    console.error(lastError, error);
+    if (status) status.textContent = lastError;
   }
+  updateDebug();
 }
 
 async function handleResend() {
   const status = document.getElementById('verify-status');
   try {
     await sendEmailOtp(email);
-    status && (status.textContent = 'Code resent.');
+    if (status) status.textContent = 'Code resent.';
     startCooldown();
   } catch (error: any) {
-    status && (status.textContent = error?.message || 'Failed to resend');
+    lastError = error?.message || 'Failed to resend';
+    console.error(lastError, error);
+    if (status) status.textContent = lastError;
   }
+  updateDebug();
 }
 
 async function init() {
@@ -70,6 +102,12 @@ async function init() {
   bindThemeToggle();
   const storedLocale = localStorage.getItem('helpro.locale') || 'en';
   await setLanguage(storedLocale, false);
+  showEnvWarning();
+  if (!envOk) {
+    lastError = 'Supabase env vars missing';
+    updateDebug();
+    return;
+  }
 
   readParams();
   if (!email) {
@@ -85,6 +123,14 @@ async function init() {
     window.location.href = '/auth.html';
   });
   startCooldown();
+  try {
+    const session = await getSession();
+    lastSessionEmail = session?.user?.email || '';
+  } catch (error: any) {
+    lastError = error?.message || 'Session lookup failed';
+    console.error(lastError, error);
+  }
+  updateDebug();
 }
 
 document.addEventListener('DOMContentLoaded', init);

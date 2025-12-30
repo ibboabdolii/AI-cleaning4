@@ -22,7 +22,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./styles/main.css">
 </head>
-<body class="min-h-screen theme-body" data-page="app">
+  <body class="min-h-screen theme-body" data-page="app">
   <header class="header-bar sticky top-0 z-30">
     <div class="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
       <div class="flex items-center gap-3">
@@ -39,7 +39,19 @@
     </div>
   </header>
 
-  <main id="app" class="mx-auto min-h-[70vh] max-w-5xl px-4 py-6"></main>
+  <main class="mx-auto min-h-[70vh] max-w-5xl px-4 py-6">
+    <div id="env-error" class="alert mb-4 hidden">Supabase env vars are missing. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.</div>
+    <div id="auth-debug" class="mb-4 rounded-2xl border border-dashed border-white/20 bg-white/40 p-4 text-sm text-gray-700 dark:bg-white/5 dark:text-gray-200 hidden">
+      <p class="font-semibold mb-2">Debug Auth (dev-only)</p>
+      <ul class="space-y-1">
+        <li>Origin: <span id="debug-origin"></span></li>
+        <li>Env present: <span id="debug-env"></span></li>
+        <li>Session email: <span id="debug-email"></span></li>
+        <li>Last auth error: <span id="debug-error"></span></li>
+      </ul>
+    </div>
+    <div id="app" class="min-h-[60vh]"></div>
+  </main>
 
   <nav class="bottom-nav" aria-label="Primary">
     <button class="nav-item" data-nav="#/onboarding">Home</button>
@@ -48,6 +60,6 @@
     <button class="nav-item" data-nav="#/provider/profile">Profile</button>
   </nav>
 
-  <script type="module" src="./scripts/app-shell.ts"></script>
+  <script type="module" src="./pages/app.ts"></script>
 </body>
 </html>

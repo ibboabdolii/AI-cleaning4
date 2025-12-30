@@ -2,16 +2,26 @@ import { getSupabase } from './supabase.ts';
 
 export async function signInWithGoogle() {
   const supabase = await getSupabase();
-  const { data, error } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin + '/app.html' } });
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: `${window.location.origin}/app.html` }
+  });
   if (error) throw error;
   return data;
+}
+
+export async function exchangeCodeForSession(code: string) {
+  const supabase = await getSupabase();
+  const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+  if (error) throw error;
+  return data.session;
 }
 
 export async function sendEmailOtp(email: string) {
   const supabase = await getSupabase();
   const { error } = await supabase.auth.signInWithOtp({
     email,
-    options: { shouldCreateUser: true, emailRedirectTo: window.location.origin + '/auth.html' }
+    options: { shouldCreateUser: true }
   });
   if (error) throw error;
   return true;

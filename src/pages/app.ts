@@ -1,6 +1,6 @@
-import { bindThemeToggle, initTheme } from './theme.js';
-import { setLanguage } from './i18n.js';
-import { getSession, signOut, updateUserMetadata } from '../lib/auth.ts';
+import { bindThemeToggle, initTheme } from '../scripts/theme.js';
+import { setLanguage } from '../scripts/i18n.js';
+import { exchangeCodeForSession, getSession, signOut, updateUserMetadata } from '../lib/auth.ts';
 import {
   AvailabilityException,
   AvailabilityRule,
@@ -29,6 +29,9 @@ import {
 
 let currentSession: any = null;
 let messageSubscription: any = null;
+const envOk = Boolean(import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY);
+let lastError = '';
+let lastSessionEmail = '';
 
 function parseRoute() {
   const hash = window.location.hash || '#/onboarding';
@@ -40,6 +43,7 @@ function parseRoute() {
 function setView(html: string) {
   const container = document.getElementById('app');
   if (container) container.innerHTML = html;
+  else console.error('App container missing');
 }
 
 function setActiveNav(target: string) {
@@ -47,6 +51,28 @@ function setActiveNav(target: string) {
     const nav = (btn as HTMLElement).dataset.nav || '';
     btn.classList.toggle('active', nav === target);
   });
+}
+
+function showEnvWarning() {
+  if (envOk) return;
+  console.error('Supabase env vars missing: VITE_SUPABASE_URL and/or VITE_SUPABASE_ANON_KEY');
+  const banner = document.getElementById('env-error');
+  if (banner) banner.classList.remove('hidden');
+}
+
+function updateDebug() {
+  const debug = document.getElementById('auth-debug');
+  if (!debug) return;
+  if (!import.meta.env.DEV && !new URLSearchParams(window.location.search).has('debug')) return;
+  debug.classList.remove('hidden');
+  const originEl = document.getElementById('debug-origin');
+  const envEl = document.getElementById('debug-env');
+  const emailEl = document.getElementById('debug-email');
+  const errorEl = document.getElementById('debug-error');
+  if (originEl) originEl.textContent = window.location.origin;
+  if (envEl) envEl.textContent = envOk ? 'yes' : 'missing';
+  if (emailEl) emailEl.textContent = lastSessionEmail || '—';
+  if (errorEl) errorEl.textContent = lastError || '—';
 }
 
 async function renderOnboarding() {
@@ -71,7 +97,13 @@ async function renderOnboarding() {
     btn.addEventListener('click', async () => {
       const role = (btn as HTMLElement).dataset.role;
       const target = (btn as HTMLElement).dataset.target;
-      await updateUserMetadata({ role });
+      try {
+        await updateUserMetadata({ role });
+      } catch (error: any) {
+        lastError = error?.message || 'Failed to update role';
+        console.error(lastError, error);
+        updateDebug();
+      }
       if (role === 'provider') {
         window.location.hash = '#/provider/profile';
       } else if (target === 'new') {
@@ -119,30 +151,42 @@ async function renderCustomerNew() {
   `);
 
   const form = document.getElementById('customer-request') as HTMLFormElement | null;
-  form?.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    const status = document.getElementById('customer-request-status');
-    const formData = new FormData(form);
-    if (!currentSession?.user?.id) return;
-    const request: CustomerRequest = {
-      customer_user_id: currentSession.user.id,
-      segment: String(formData.get('segment') || 'home'),
-      service_type: String(formData.get('service_type') || ''),
-      location: String(formData.get('location') || ''),
-      time_window: String(formData.get('time_window') || ''),
-      size: String(formData.get('size') || ''),
-      details: String(formData.get('details') || ''),
-      status: 'open'
-    };
-    try {
-      const created = await createCustomerRequest(request);
-      if (created?.id) {
-        window.location.hash = `#/customer/request?id=${created.id}`;
+  if (form) {
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const status = document.getElementById('customer-request-status');
+      const formData = new FormData(form);
+      if (!currentSession?.user?.id) {
+        lastError = 'Missing session user';
+        console.error(lastError);
+        updateDebug();
+        return;
       }
-    } catch (error: any) {
-      status && (status.textContent = error?.message || 'Failed to create request');
-    }
-  });
+      const request: CustomerRequest = {
+        customer_user_id: currentSession.user.id,
+        segment: String(formData.get('segment') || 'home'),
+        service_type: String(formData.get('service_type') || ''),
+        location: String(formData.get('location') || ''),
+        time_window: String(formData.get('time_window') || ''),
+        size: String(formData.get('size') || ''),
+        details: String(formData.get('details') || ''),
+        status: 'open'
+      };
+      try {
+        const created = await createCustomerRequest(request);
+        if (created?.id) {
+          window.location.hash = `#/customer/request?id=${created.id}`;
+        }
+      } catch (error: any) {
+        lastError = error?.message || 'Failed to create request';
+        console.error(lastError, error);
+        status && (status.textContent = lastError);
+        updateDebug();
+      }
+    });
+  } else {
+    console.error('Customer request form missing');
+  }
 }
 
 async function renderCustomerRequest(id: string | null) {
@@ -368,7 +412,10 @@ async function renderProviderSchedule() {
       await saveAvailabilityRule(rule);
       status && (status.textContent = 'Rule added');
     } catch (error: any) {
-      status && (status.textContent = error?.message || 'Failed to add rule');
+      lastError = error?.message || 'Failed to add rule';
+      console.error(lastError, error);
+      status && (status.textContent = lastError);
+      updateDebug();
     }
   });
 
@@ -388,7 +435,10 @@ async function renderProviderSchedule() {
       await saveAvailabilityException(exception);
       status && (status.textContent = 'Exception added');
     } catch (error: any) {
-      status && (status.textContent = error?.message || 'Failed to add exception');
+      lastError = error?.message || 'Failed to add exception';
+      console.error(lastError, error);
+      status && (status.textContent = lastError);
+      updateDebug();
     }
   });
 }
@@ -487,11 +537,17 @@ async function renderProviderRequest(id: string | null) {
         status && (status.textContent = 'Proposal sent');
         window.location.hash = '#/provider/requests';
       } catch (error: any) {
-        status && (status.textContent = error?.message || 'Failed to submit proposal');
+        lastError = error?.message || 'Failed to submit proposal';
+        console.error(lastError, error);
+        status && (status.textContent = lastError);
+        updateDebug();
       }
     });
   } catch (error: any) {
-    setView(`<p class="form-error">${error?.message || 'Unable to load request'}</p>`);
+    lastError = error?.message || 'Unable to load request';
+    console.error(lastError, error);
+    setView(`<p class="form-error">${lastError}</p>`);
+    updateDebug();
   }
 }
 
@@ -604,22 +660,55 @@ function initNav() {
   });
 }
 
+async function handleOAuthCallback() {
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get('code');
+  if (!code) return;
+  try {
+    const session = await exchangeCodeForSession(code);
+    lastSessionEmail = session?.user?.email || '';
+    const clean = new URL(window.location.href);
+    clean.searchParams.delete('code');
+    clean.searchParams.delete('state');
+    window.history.replaceState({}, '', clean.toString());
+    if (session) {
+      window.location.hash = '#/onboarding';
+    }
+  } catch (error: any) {
+    lastError = error?.message || 'OAuth exchange failed';
+    console.error(lastError, error);
+    updateDebug();
+  }
+}
+
 async function init() {
   initTheme();
   bindThemeToggle();
   const storedLocale = localStorage.getItem('helpro.locale') || 'en';
   await setLanguage(storedLocale, false);
+  showEnvWarning();
+  if (!envOk) {
+    lastError = 'Supabase env vars missing';
+    setView(`<p class="form-error">${lastError}</p>`);
+    updateDebug();
+    return;
+  }
 
   try {
+    await handleOAuthCallback();
     currentSession = await getSession();
   } catch (error: any) {
-    setView(`<p class="form-error">Supabase not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.</p>`);
+    lastError = error?.message || 'Supabase not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.';
+    console.error(lastError, error);
+    setView(`<p class="form-error">${lastError}</p>`);
+    updateDebug();
     return;
   }
   if (!currentSession) {
     window.location.href = '/auth.html';
     return;
   }
+  lastSessionEmail = currentSession.user?.email || '';
   const emailEl = document.getElementById('session-email');
   if (emailEl) emailEl.textContent = currentSession.user?.email || '';
 
@@ -630,6 +719,7 @@ async function init() {
 
   initNav();
   await renderRoute();
+  updateDebug();
   window.addEventListener('hashchange', renderRoute);
 }
 
