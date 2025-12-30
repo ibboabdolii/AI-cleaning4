@@ -12,6 +12,13 @@ export function LanguageSelector() {
 
   if (!open) return null;
 
+  const options = [
+    { code: 'en', label: 'English', subtitle: 'English · en-US', flag: '🇬🇧' },
+    { code: 'de', label: 'Deutsch', subtitle: 'Deutsch · de-DE', flag: '🇩🇪' },
+    { code: 'se', label: 'Svenska', subtitle: 'Svenska · sv-SE', flag: '🇸🇪' },
+    { code: 'es', label: 'Español', subtitle: 'Español · es-ES', flag: '🇪🇸' }
+  ];
+
   const choose = (value: string) => {
     localStorage.setItem('lang', value);
     setLang(value as any);
@@ -24,10 +31,21 @@ export function LanguageSelector() {
       <div className="language-dialog">
         <p className="language-title">Choose your language</p>
         <div className="language-grid">
-          <button className="language-option" onClick={() => choose('en')}>English</button>
-          <button className="language-option" onClick={() => choose('de')}>Deutsch</button>
-          <button className="language-option" onClick={() => choose('se')}>Svenska</button>
-          <button className="language-option" onClick={() => choose('es')}>Español</button>
+          {options.map((option) => (
+            <button
+              key={option.code}
+              className={`language-option ${lang === option.code ? 'active' : ''}`}
+              onClick={() => choose(option.code)}
+              aria-pressed={lang === option.code}
+            >
+              <span className="tile-left" aria-hidden="true">{option.flag}</span>
+              <span className="tile-body">
+                <span className="tile-title">{option.label}</span>
+                <span className="tile-subtitle">{option.subtitle}</span>
+              </span>
+              <span className="tile-check" aria-hidden="true" />
+            </button>
+          ))}
         </div>
       </div>
     </div>

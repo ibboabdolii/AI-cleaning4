@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Helpro — Verify code</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <script>
+    (() => {
+      try {
+        const stored = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const theme = stored === 'dark' || stored === 'light' ? stored : prefersDark ? 'dark' : 'light';
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme === 'dark' ? 'dark' : 'light';
+      } catch (error) {
+        document.documentElement.dataset.theme = 'light';
+      }
+    })();
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles/main.css">
+</head>
+<body class="min-h-screen theme-body" data-page="verify">
+  <header class="header-bar sticky top-0 z-20">
+    <div class="mx-auto flex max-w-4xl items-center justify-between px-6 py-4">
+      <div class="flex items-center gap-3">
+        <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-500/15 text-lg font-bold text-emerald-700 dark:text-emerald-200">HP</div>
+        <div>
+          <p class="text-sm uppercase tracking-[0.2em] text-gray-500 dark:text-gray-300">Helpro</p>
+          <p class="text-sm text-gray-600 dark:text-gray-300">Verify your email</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <a class="ghost-button" href="/auth.html">&larr; Back</a>
+        <button id="theme-toggle" class="ghost-button" data-theme-toggle aria-label="Toggle theme"><span class="theme-toggle__icon">☀️</span></button>
+      </div>
+    </div>
+  </header>
+
+  <main class="mx-auto flex min-h-[70vh] max-w-3xl flex-col justify-center px-6 py-10">
+    <section class="glass-card rounded-3xl border border-white/10 bg-white/60 p-8 shadow-xl backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
+      <div id="env-error" class="alert mb-4 hidden">Supabase env vars are missing. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.</div>
+      <h1 class="text-2xl font-semibold">Enter the 6-digit code</h1>
+      <p class="mt-2 text-sm text-gray-600 dark:text-gray-300" id="verify-email-label"></p>
+      <div class="mt-6 grid gap-3">
+        <input id="otp-code" maxlength="6" inputmode="numeric" class="form-input text-center text-lg tracking-[0.4em]" placeholder="••••••" aria-label="6 digit verification code" />
+        <button id="verify-btn" class="btn-primary rounded-full">Verify</button>
+        <button id="resend-btn" class="btn-secondary rounded-full" type="button">Resend code</button>
+        <button id="edit-email" class="ghost-button" type="button">Edit email</button>
+      </div>
+      <p id="verify-status" class="form-error"></p>
+      <div id="auth-debug" class="mt-6 rounded-2xl border border-dashed border-white/20 bg-white/40 p-4 text-sm text-gray-700 dark:bg-white/5 dark:text-gray-200 hidden">
+        <p class="font-semibold mb-2">Debug Auth (dev-only)</p>
+        <ul class="space-y-1">
+          <li>Origin: <span id="debug-origin"></span></li>
+          <li>Env present: <span id="debug-env"></span></li>
+          <li>Session email: <span id="debug-email"></span></li>
+          <li>Last auth error: <span id="debug-error"></span></li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="./pages/verify.ts"></script>
+</body>
+</html>

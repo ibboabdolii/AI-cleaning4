@@ -1,18 +1,18 @@
 const localeFiles = {
   en: new URL('../locales/en.json', import.meta.url).href,
-  se: new URL('../locales/se.json', import.meta.url).href,
+  sv: new URL('../locales/sv.json', import.meta.url).href,
   de: new URL('../locales/de.json', import.meta.url).href,
   es: new URL('../locales/es.json', import.meta.url).href
 };
 
 const languageMeta = {
-  en: { label: 'English', locale: 'en-US' },
-  se: { label: 'Svenska', locale: 'sv-SE' },
-  de: { label: 'Deutsch', locale: 'de-DE' },
-  es: { label: 'Español', locale: 'es-ES' }
+  en: { label: 'EN — English', locale: 'en', native: 'English', flag: '🇬🇧' },
+  sv: { label: 'SE — Svenska', locale: 'sv', native: 'Svenska', flag: '🇸🇪' },
+  de: { label: 'DE — Deutsch', locale: 'de', native: 'Deutsch', flag: '🇩🇪' },
+  es: { label: 'ES — Español', locale: 'es', native: 'Español', flag: '🇪🇸' }
 };
 
-const languageKey = 'lang';
+const languageKey = 'helpro.locale';
 let translations = {};
 let fallbackTranslations = {};
 let currentLanguage = 'en';
@@ -45,7 +45,7 @@ function formatWithLocale(date, lang = currentLanguage, options = {}) {
 }
 
 function getStoredLanguage() {
-  return localStorage.getItem(languageKey) || localStorage.getItem('cleanai_language');
+  return localStorage.getItem(languageKey);
 }
 
 async function setLanguage(lang, persist = true) {
@@ -62,9 +62,9 @@ async function setLanguage(lang, persist = true) {
   }
   if (persist) {
     localStorage.setItem(languageKey, target);
-    localStorage.setItem('languageSelected', 'true');
   }
   document.documentElement.lang = languageMeta[target]?.locale || 'en';
+  document.documentElement.dir = 'ltr';
   applyTranslations();
   listeners.forEach((cb) => cb(target));
   closeSelector();
@@ -113,14 +113,32 @@ function onLanguageChange(cb) {
 }
 
 function buildLanguageOption({ code, label }) {
+  const meta = languageMeta[code] || {};
   const button = document.createElement('button');
   button.type = 'button';
   button.className = 'language-option';
-  button.textContent = label;
+  const subtitle = meta.native ? `${meta.native} · ${meta.locale || ''}` : meta.locale || 'Interface';
+  button.innerHTML = `
+    <span class="tile-left" aria-hidden="true">${meta.flag || '🌐'}</span>
+    <span class="tile-body">
+      <span class="tile-title">${label}</span>
+      <span class="tile-subtitle">${subtitle}</span>
+    </span>
+    <span class="tile-check" aria-hidden="true"></span>
+  `;
   button.dataset.lang = code;
+  if (code === currentLanguage) {
+    button.classList.add('active');
+    button.setAttribute('aria-pressed', 'true');
+  } else {
+    button.setAttribute('aria-pressed', 'false');
+  }
   button.addEventListener('click', async () => {
+    document.querySelectorAll('.language-option').forEach((el) => {
+      el.classList.toggle('active', el === button);
+      el.setAttribute('aria-pressed', el === button ? 'true' : 'false');
+    });
     await setLanguage(code);
-    closeSelector();
   });
   return button;
 }

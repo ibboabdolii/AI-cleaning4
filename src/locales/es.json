@@ -1,6 +1,10 @@
 {
   "language.title": "Elige tu idioma",
   "language.subtitle": "Tu elección actualiza la interfaz y las respuestas del chat.",
+  "language.subtitleHint": "Disponible: DE / SE / ES / EN",
+  "language.badge": "Comienza aquí",
+  "language.helper": "Selecciona un idioma para continuar al inicio de sesión.",
+  "language.continue": "Continuar",
   "language.dismiss": "Continuar en inglés",
   "language.switch": "Idioma",
 
