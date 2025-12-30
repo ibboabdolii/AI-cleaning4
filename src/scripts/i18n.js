@@ -13,6 +13,7 @@ const languageMeta = {
 };
 
 const languageKey = 'helpro.locale';
+const redirectKey = 'helpro.postLangRedirect';
 const supportedLanguages = Object.keys(localeFiles);
 let translations = {};
 let fallbackTranslations = {};
@@ -88,11 +89,22 @@ async function setLanguage(lang, persist = true) {
   listeners.forEach((cb) => cb(target));
   closeSelector();
   document.body.classList.remove('lang-blocked');
+
+  const pendingRedirect = sessionStorage.getItem(redirectKey);
+  if (pendingRedirect) {
+    sessionStorage.removeItem(redirectKey);
+    location.replace(pendingRedirect);
+  }
 }
 
 async function initI18n() {
   const stored = getStoredLanguage();
   if (!stored || !isValidLanguage(stored)) {
+    const page = document.body?.dataset?.page;
+    const fallbackMain = '/index.html';
+    const isAuthIntent = ['login', 'register', 'auth', 'verify'].includes(page);
+    const intended = isAuthIntent ? window.location.pathname : fallbackMain;
+    sessionStorage.setItem(redirectKey, intended || fallbackMain);
     document.documentElement.dataset.langPending = 'true';
     document.body.classList.add('lang-blocked');
     openLanguageSelector({ required: true });

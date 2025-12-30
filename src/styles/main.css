@@ -29,6 +29,14 @@
     display: none !important;
   }
 
+  [data-requires-lang] {
+    display: none;
+  }
+
+  html:not([data-lang-pending]) [data-requires-lang] {
+    display: revert;
+  }
+
   a, button, input, textarea, select {
     outline: none;
     transition: color var(--transition-speed) ease, background-color var(--transition-speed) ease, border-color var(--transition-speed) ease;
