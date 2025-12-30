@@ -2,6 +2,8 @@ import { bindThemeToggle, initTheme } from './theme.js';
 import { applyTranslations, languageMeta, setLanguage } from './i18n.js';
 
 const languages = ['de', 'sv', 'es', 'en'];
+const redirectKey = 'helpro.postLangRedirect';
+const mainEntry = '/book.html';
 
 function renderOptions(container: HTMLElement) {
   container.innerHTML = '';
@@ -38,7 +40,7 @@ async function init() {
   const stored = localStorage.getItem('helpro.locale');
   if (stored && languages.includes(stored)) {
     await setLanguage(stored, false);
-    window.location.href = '/auth.html';
+    location.replace(mainEntry);
     return;
   }
 
@@ -50,7 +52,12 @@ async function init() {
 
   const continueBtn = document.getElementById('continue-language') as HTMLButtonElement | null;
   continueBtn?.addEventListener('click', () => {
-    window.location.href = '/auth.html';
+    if (!sessionStorage.getItem(redirectKey)) {
+      sessionStorage.setItem(redirectKey, mainEntry);
+    }
+    const active = document.querySelector('[data-lang].active') as HTMLElement | null;
+    const chosen = active?.dataset.lang || stored || languages[0];
+    setLanguage(chosen, true);
   });
 }
 

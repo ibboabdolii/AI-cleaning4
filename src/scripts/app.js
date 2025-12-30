@@ -1243,12 +1243,7 @@ function renderFeed(container) {
 
 function routeGuard(page) {
   if (page === 'book') {
-    if (!requireAuth()) return false;
-    if (!requireRole('customer')) return false;
-    if (!isCustomerOnboarded()) {
-      window.location.href = '/onboarding.html';
-      return false;
-    }
+    return true;
   }
   if (page === 'provider-onboarding' || page === 'provider-feed') {
     if (!requireAuth()) return false;

@@ -101,7 +101,7 @@ async function initI18n() {
   const stored = getStoredLanguage();
   if (!stored || !isValidLanguage(stored)) {
     const page = document.body?.dataset?.page;
-    const fallbackMain = '/index.html';
+    const fallbackMain = '/book.html';
     const isAuthIntent = ['login', 'register', 'auth', 'verify'].includes(page);
     const intended = isAuthIntent ? window.location.pathname : fallbackMain;
     sessionStorage.setItem(redirectKey, intended || fallbackMain);
