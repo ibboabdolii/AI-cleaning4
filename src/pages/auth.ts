@@ -1,5 +1,5 @@
 import { bindThemeToggle, initTheme } from '../scripts/theme.js';
-import { setLanguage } from '../scripts/i18n.js';
+import { initI18n } from '../scripts/i18n.js';
 import { exchangeCodeForSession, getSession, sendEmailOtp, signInWithGoogle } from '../lib/auth.ts';
 
 const envOk = Boolean(import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY);
@@ -149,8 +149,7 @@ async function handleOAuthCallback() {
 async function init() {
   initTheme();
   bindThemeToggle();
-  const storedLocale = localStorage.getItem('helpro.locale') || 'en';
-  await setLanguage(storedLocale, false);
+  await initI18n();
 
   showEnvWarning();
   if (!envOk) {

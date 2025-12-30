@@ -21,6 +21,14 @@
     color: var(--text);
   }
 
+  html.language-selector-open {
+    overflow: hidden;
+  }
+
+  html[data-lang-pending] body > *:not(.language-backdrop) {
+    display: none !important;
+  }
+
   a, button, input, textarea, select {
     outline: none;
     transition: color var(--transition-speed) ease, background-color var(--transition-speed) ease, border-color var(--transition-speed) ease;

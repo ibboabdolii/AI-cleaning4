@@ -1,5 +1,5 @@
 import { bindThemeToggle, initTheme } from '../scripts/theme.js';
-import { setLanguage } from '../scripts/i18n.js';
+import { initI18n } from '../scripts/i18n.js';
 import { getSession, sendEmailOtp, verifyEmailOtp } from '../lib/auth.ts';
 
 const envOk = Boolean(import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY);
@@ -100,8 +100,7 @@ async function handleResend() {
 async function init() {
   initTheme();
   bindThemeToggle();
-  const storedLocale = localStorage.getItem('helpro.locale') || 'en';
-  await setLanguage(storedLocale, false);
+  await initI18n();
   showEnvWarning();
   if (!envOk) {
     lastError = 'Supabase env vars missing';
