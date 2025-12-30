@@ -4,6 +4,9 @@ import { fileURLToPath } from 'url'
 
 const requiredFiles = [
   'index.html',
+  'auth.html',
+  'verify.html',
+  'app.html',
   'login.html',
   'register.html',
   'onboarding.html',
