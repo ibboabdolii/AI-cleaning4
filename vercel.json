@@ -7,8 +7,6 @@
     { "source": "/verify", "destination": "/verify.html" },
     { "source": "/app", "destination": "/app.html" },
     { "source": "/book", "destination": "/book.html" },
-    { "source": "/login", "destination": "/login.html" },
-    { "source": "/register", "destination": "/register.html" },
     { "source": "/onboarding", "destination": "/onboarding.html" },
     { "source": "/provider-onboarding", "destination": "/provider-onboarding.html" },
     { "source": "/provider-feed", "destination": "/provider-feed.html" }

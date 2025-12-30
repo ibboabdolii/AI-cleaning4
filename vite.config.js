@@ -17,8 +17,6 @@ export default defineConfig({
         auth: resolve(__dirname, 'src/auth.html'),
         verify: resolve(__dirname, 'src/verify.html'),
         app: resolve(__dirname, 'src/app.html'),
-        login: resolve(__dirname, 'src/login.html'),
-        register: resolve(__dirname, 'src/register.html'),
         onboarding: resolve(__dirname, 'src/onboarding.html'),
         book: resolve(__dirname, 'src/book.html'),
         providerOnboarding: resolve(__dirname, 'src/provider-onboarding.html'),
