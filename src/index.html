@@ -26,29 +26,32 @@
   <header class="header-bar sticky top-0 z-20">
     <div class="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
       <div class="flex items-center gap-3">
-        <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-500/15 text-lg font-bold text-emerald-700 dark:text-emerald-200">HP</div>
+        <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 text-lg font-bold text-white shadow-sm">CAI</div>
         <div>
-          <p class="text-sm uppercase tracking-[0.2em] text-gray-500 dark:text-gray-300">Helpro</p>
-          <p class="text-sm text-gray-600 dark:text-gray-300">TipTapp-style marketplace</p>
+          <p class="text-xs uppercase tracking-[0.2em] text-gray-500" data-i18n="app.brand">CleanAI</p>
+          <p class="text-sm text-gray-400" data-i18n="language.header.subtitle">Set your preferred language</p>
         </div>
       </div>
-      <button id="theme-toggle" class="ghost-button" data-theme-toggle aria-label="Toggle theme"><span class="theme-toggle__icon">☀️</span></button>
+      <div class="flex items-center gap-2">
+        <button id="theme-toggle" class="icon-button" data-theme-toggle aria-label="Toggle theme"><span class="theme-toggle__icon" aria-hidden="true">☀️</span></button>
+        <a class="btn-secondary rounded-full text-sm" href="/login.html" data-i18n="auth.login.title">Login</a>
+      </div>
     </div>
   </header>
 
-  <main class="mx-auto flex min-h-[70vh] max-w-4xl flex-col justify-center px-6 py-10">
-    <section class="glass-card rounded-3xl border border-white/10 bg-white/60 p-8 shadow-xl backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
-      <div class="mb-6 flex items-center justify-between gap-4">
-        <div>
-          <p class="text-sm font-medium text-emerald-600 dark:text-emerald-300" data-i18n="language.badge">Start here</p>
-          <h1 class="mt-1 text-2xl font-semibold" data-i18n="language.title">Choose your language</h1>
-          <p class="text-sm text-gray-600 dark:text-gray-300" data-i18n="language.subtitle">We’ll use this across the app and chat.</p>
+  <main class="mx-auto flex min-h-[70vh] max-w-5xl flex-col justify-center px-6 py-10">
+    <section class="glass-card rounded-[28px] p-8 shadow-card">
+      <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div class="space-y-1">
+          <p class="pill" data-i18n="language.badge">Start here</p>
+          <h1 class="text-3xl font-bold" data-i18n="language.title">Choose your language</h1>
+          <p class="text-sm text-muted-2" data-i18n="language.subtitle">We’ll use this across the app and chat.</p>
         </div>
-        <div class="rounded-2xl bg-emerald-500/10 px-4 py-2 text-sm font-semibold text-emerald-700 dark:text-emerald-200" data-i18n="language.subtitleHint">Available: DE / SE / ES / EN</div>
+        <div class="pill" data-i18n="language.subtitleHint">Available: DE / SE / ES / EN</div>
       </div>
       <div class="grid gap-3 md:grid-cols-2" id="language-options"></div>
       <div class="mt-6 flex flex-wrap items-center justify-between gap-3">
-        <p class="text-sm text-gray-600 dark:text-gray-300" data-i18n="language.helper">Select a language to continue to sign-in.</p>
+        <p class="text-sm text-muted-2" data-i18n="language.helper">Select a language to continue to sign-in.</p>
         <button id="continue-language" class="btn-primary rounded-full px-6 py-3 disabled:opacity-50" disabled data-i18n="language.continue">Continue</button>
       </div>
     </section>

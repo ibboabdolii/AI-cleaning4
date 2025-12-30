@@ -19,6 +19,23 @@
       }
     })();
   </script>
+  <script>
+    (() => {
+      const key = 'helpro.locale';
+      const supported = ['en', 'sv', 'de', 'es'];
+      try {
+        const stored = localStorage.getItem(key);
+        if (!stored || !supported.includes(stored)) {
+          document.documentElement.setAttribute('data-lang-pending', 'true');
+        }
+      } catch (error) {
+        document.documentElement.setAttribute('data-lang-pending', 'true');
+      }
+    })();
+  </script>
+  <style>
+    html[data-lang-pending] body > *:not(.language-backdrop) { display: none !important; }
+  </style>
   <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./styles/main.css">
 </head>

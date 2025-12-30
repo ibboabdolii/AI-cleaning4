@@ -13,6 +13,8 @@ const languageMeta = {
 };
 
 const languageKey = 'helpro.locale';
+const redirectKey = 'helpro.postLangRedirect';
+const supportedLanguages = Object.keys(localeFiles);
 let translations = {};
 let fallbackTranslations = {};
 let currentLanguage = 'en';
@@ -45,7 +47,22 @@ function formatWithLocale(date, lang = currentLanguage, options = {}) {
 }
 
 function getStoredLanguage() {
-  return localStorage.getItem(languageKey);
+  try {
+    const stored = localStorage.getItem(languageKey);
+    if (!stored) return null;
+    if (!localeFiles[stored]) {
+      localStorage.removeItem(languageKey);
+      return null;
+    }
+    return stored;
+  } catch (error) {
+    console.warn('Language read failed', error);
+    return null;
+  }
+}
+
+function isValidLanguage(lang) {
+  return supportedLanguages.includes(lang);
 }
 
 async function setLanguage(lang, persist = true) {
@@ -65,15 +82,30 @@ async function setLanguage(lang, persist = true) {
   }
   document.documentElement.lang = languageMeta[target]?.locale || 'en';
   document.documentElement.dir = 'ltr';
+  document.documentElement.removeAttribute('data-lang-pending');
+  document.body.classList.remove('lang-blocked');
+  document.documentElement.classList.remove('language-selector-open');
   applyTranslations();
   listeners.forEach((cb) => cb(target));
   closeSelector();
   document.body.classList.remove('lang-blocked');
+
+  const pendingRedirect = sessionStorage.getItem(redirectKey);
+  if (pendingRedirect) {
+    sessionStorage.removeItem(redirectKey);
+    location.replace(pendingRedirect);
+  }
 }
 
 async function initI18n() {
   const stored = getStoredLanguage();
-  if (!stored) {
+  if (!stored || !isValidLanguage(stored)) {
+    const page = document.body?.dataset?.page;
+    const fallbackMain = '/book.html';
+    const isAuthIntent = ['login', 'register', 'auth', 'verify'].includes(page);
+    const intended = isAuthIntent ? window.location.pathname : fallbackMain;
+    sessionStorage.setItem(redirectKey, intended || fallbackMain);
+    document.documentElement.dataset.langPending = 'true';
     document.body.classList.add('lang-blocked');
     openLanguageSelector({ required: true });
     await new Promise((resolve) => {
@@ -85,6 +117,7 @@ async function initI18n() {
   } else {
     await setLanguage(stored || 'en', Boolean(stored));
   }
+  document.documentElement.removeAttribute('data-lang-pending');
   document.body.classList.remove('lang-blocked');
 }
 
@@ -143,7 +176,7 @@ function buildLanguageOption({ code, label }) {
   return button;
 }
 
-function trapFocus(modal) {
+function trapFocus(modal, { allowEscape = true } = {}) {
   const focusable = modal.querySelectorAll('button');
   const first = focusable[0];
   const last = focusable[focusable.length - 1];
@@ -158,7 +191,7 @@ function trapFocus(modal) {
       }
     }
     if (event.key === 'Escape') {
-      closeSelector();
+      if (allowEscape) closeSelector();
     }
   });
   return first;
@@ -166,6 +199,8 @@ function trapFocus(modal) {
 
 function openLanguageSelector({ required = false } = {}) {
   if (selectorEl) {
+    selectorEl.dataset.required = required ? 'true' : 'false';
+    selectorEl.querySelector('.language-dismiss')?.classList.toggle('hidden', required);
     selectorEl.classList.remove('hidden');
     selectorEl.setAttribute('aria-hidden', 'false');
     selectorEl.querySelector('button')?.focus();
@@ -176,6 +211,7 @@ function openLanguageSelector({ required = false } = {}) {
   selectorEl.setAttribute('role', 'dialog');
   selectorEl.setAttribute('aria-modal', 'true');
   selectorEl.setAttribute('aria-label', 'Language selector');
+  selectorEl.dataset.required = required ? 'true' : 'false';
 
   const dialog = document.createElement('div');
   dialog.className = 'language-dialog';
@@ -212,7 +248,8 @@ function openLanguageSelector({ required = false } = {}) {
   document.body.appendChild(selectorEl);
   applyTranslations(dialog);
   lastFocused = document.activeElement;
-  const first = trapFocus(dialog);
+  document.documentElement.classList.add('language-selector-open');
+  const first = trapFocus(dialog, { allowEscape: !required });
   setTimeout(() => first?.focus(), 0);
 }
 
@@ -224,6 +261,7 @@ function closeSelector() {
   setTimeout(() => {
     selectorEl?.remove();
     selectorEl = null;
+    document.documentElement.classList.remove('language-selector-open');
   }, 50);
 }
 

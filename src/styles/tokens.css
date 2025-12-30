@@ -1,0 +1,12 @@
+:root {
+  --r-md: 14px;
+  --r-lg: 20px;
+  --r-xl: 28px;
+  --radius-sm: 12px;
+  --radius-md: var(--r-md);
+  --radius-lg: var(--r-xl);
+  --shadow-card: 0 24px 70px rgba(15, 23, 42, 0.14);
+  --shadow-float: 0 30px 120px rgba(5, 10, 25, 0.28);
+  --focus-ring: 0 0 0 3px color-mix(in srgb, var(--accent) 52%, transparent);
+  --transition-speed: 220ms;
+}

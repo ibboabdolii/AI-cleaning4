@@ -19,17 +19,34 @@
       }
     })();
   </script>
+  <script>
+    (() => {
+      const key = 'helpro.locale';
+      const supported = ['en', 'sv', 'de', 'es'];
+      try {
+        const stored = localStorage.getItem(key);
+        if (!stored || !supported.includes(stored)) {
+          document.documentElement.setAttribute('data-lang-pending', 'true');
+        }
+      } catch (error) {
+        document.documentElement.setAttribute('data-lang-pending', 'true');
+      }
+    })();
+  </script>
+  <style>
+    html[data-lang-pending] body > *:not(.language-backdrop) { display: none !important; }
+  </style>
   <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./styles/main.css">
 </head>
 <body class="min-h-screen theme-body" data-page="register">
-  <div class="mx-auto flex min-h-screen max-w-5xl flex-col px-6 py-10">
-    <header class="header-bar mb-8 flex items-center justify-between rounded-2xl px-4 py-3">
+  <div class="mx-auto flex min-h-screen max-w-6xl flex-col px-6 py-10">
+    <header class="header-bar mb-10 flex items-center justify-between rounded-3xl px-4 py-3 shadow-sm">
       <a class="flex items-center gap-3" href="/index.html">
-        <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/10 text-lg font-bold">CAI</div>
+        <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 text-lg font-bold">CAI</div>
         <div>
-          <p class="text-sm uppercase tracking-[0.2em] text-gray-400" data-i18n="app.brand">CleanAI</p>
-          <p class="text-sm text-gray-300" data-i18n="auth.tagline">Premium cleaning</p>
+          <p class="text-xs uppercase tracking-[0.2em] text-gray-400" data-i18n="app.brand">CleanAI</p>
+          <p class="text-sm text-muted-2" data-i18n="auth.tagline">Premium cleaning</p>
         </div>
       </a>
       <div class="flex items-center gap-3">
@@ -37,17 +54,19 @@
           <span class="theme-toggle__icon" aria-hidden="true">☀️</span>
           <span class="theme-toggle__label text-sm font-semibold">Light</span>
         </button>
-        <button id="language-launcher" type="button" class="rounded-full border border-white/10 px-3 py-2 text-xs text-gray-200 transition hover:border-white/30 hover:text-white" data-i18n="language.switch">Language</button>
-        <a class="text-sm font-semibold text-gray-300 underline-offset-4 hover:text-white" href="/login.html" data-i18n="auth.register.switch">Have an account? Log in</a>
+        <button id="language-launcher" type="button" class="btn-ghost rounded-full px-4" data-i18n="language.switch">Language</button>
+        <a class="btn-secondary rounded-full text-sm" href="/login.html" data-i18n="auth.register.switch">Have an account? Log in</a>
       </div>
     </header>
 
     <div class="grid gap-10 lg:grid-cols-2">
-      <div class="space-y-4">
-        <p class="pill w-fit" data-i18n="auth.register.badge">New to CleanAI</p>
-        <h1 class="text-3xl font-bold sm:text-4xl" data-i18n="auth.register.title">Create your account</h1>
-        <p class="text-gray-300" data-i18n="auth.register.subtitle">We route you to a guided onboarding so you can book cleaning as a customer or start offering services as a provider.</p>
-        <div class="rounded-3xl border border-white/10 bg-white/5 p-4 text-sm text-gray-300">
+      <div class="space-y-5">
+        <div class="pill w-fit" data-i18n="auth.register.badge">New to CleanAI</div>
+        <div class="space-y-3">
+          <h1 class="text-4xl font-bold sm:text-5xl" data-i18n="auth.register.title">Create your account</h1>
+          <p class="max-w-xl text-muted-2" data-i18n="auth.register.subtitle">We route you to a guided onboarding so you can book cleaning as a customer or start offering services as a provider.</p>
+        </div>
+        <div class="surface-card rounded-3xl p-5 text-sm text-muted-2">
           <p class="font-semibold text-white" data-i18n="auth.register.next.title">What happens next</p>
           <ul class="mt-2 space-y-1 list-disc list-inside">
             <li data-i18n="auth.register.next.point1">We collect role (customer or provider) in onboarding.</li>
@@ -57,24 +76,24 @@
         </div>
       </div>
 
-      <div class="glass-card rounded-3xl p-6">
-        <form id="register-form" class="space-y-4" novalidate>
-          <div>
-            <label class="block text-sm text-gray-300" for="register-name" data-i18n="auth.fullName">Full name</label>
-            <input id="register-name" name="name" type="text" required placeholder="Ada Lovelace" class="mt-2 w-full rounded-2xl bg-gray-900/60 px-4 py-3 text-white outline-none ring-1 ring-white/10 focus:ring-2 focus:ring-emerald-400" data-i18n-attr="placeholder" data-i18n-key="auth.fullName.placeholder">
+      <div class="glass-card rounded-[28px] p-7">
+        <form id="register-form" class="space-y-5" novalidate>
+          <div class="space-y-2">
+            <label class="block text-sm text-muted-2" for="register-name" data-i18n="auth.fullName">Full name</label>
+            <input id="register-name" name="name" type="text" required placeholder="Ada Lovelace" class="input" data-i18n-attr="placeholder" data-i18n-key="auth.fullName.placeholder">
           </div>
-          <div>
-            <label class="block text-sm text-gray-300" for="register-email" data-i18n="auth.email">Email</label>
-            <input id="register-email" name="email" type="email" required placeholder="you@example.com" class="mt-2 w-full rounded-2xl bg-gray-900/60 px-4 py-3 text-white outline-none ring-1 ring-white/10 focus:ring-2 focus:ring-emerald-400" data-i18n-attr="placeholder" data-i18n-key="auth.email.placeholder">
+          <div class="space-y-2">
+            <label class="block text-sm text-muted-2" for="register-email" data-i18n="auth.email">Email</label>
+            <input id="register-email" name="email" type="email" required placeholder="you@example.com" class="input" data-i18n-attr="placeholder" data-i18n-key="auth.email.placeholder">
           </div>
-          <div>
-            <label class="block text-sm text-gray-300" for="register-password" data-i18n="auth.password">Password</label>
-            <input id="register-password" name="password" type="password" required minlength="8" placeholder="At least 8 characters" class="mt-2 w-full rounded-2xl bg-gray-900/60 px-4 py-3 text-white outline-none ring-1 ring-white/10 focus:ring-2 focus:ring-emerald-400" data-i18n-attr="placeholder" data-i18n-key="auth.password.fullPlaceholder">
-            <p class="mt-1 text-xs text-gray-400" data-i18n="auth.register.passwordHint">Store locally for demo only. Replace with server-side auth when ready.</p>
+          <div class="space-y-2">
+            <label class="block text-sm text-muted-2" for="register-password" data-i18n="auth.password">Password</label>
+            <input id="register-password" name="password" type="password" required minlength="8" placeholder="At least 8 characters" class="input" data-i18n-attr="placeholder" data-i18n-key="auth.password.fullPlaceholder">
+            <p class="text-xs text-muted-2" data-i18n="auth.register.passwordHint">Store locally for demo only. Replace with server-side auth when ready.</p>
           </div>
           <div class="text-sm text-rose-300" id="register-error" role="alert"></div>
-          <button type="submit" class="btn-primary w-full rounded-2xl py-3 text-center text-sm font-semibold" data-i18n="auth.register.cta">Register & continue</button>
-          <p class="text-center text-sm text-gray-400" data-i18n-html="true" data-i18n="auth.register.helper">Already here to provide services? <a class="text-indigo-200 underline-offset-4 hover:text-indigo-100" href="#provider">Jump to provider onboarding after sign-up</a></p>
+          <button type="submit" class="btn-primary w-full rounded-full py-3 text-center text-sm font-semibold" data-i18n="auth.register.cta">Register & continue</button>
+          <p class="text-center text-sm text-muted-2" data-i18n-html="true" data-i18n="auth.register.helper">Already here to provide services? <a class="text-white underline-offset-4 hover:opacity-80" href="#provider">Jump to provider onboarding after sign-up</a></p>
         </form>
       </div>
     </div>

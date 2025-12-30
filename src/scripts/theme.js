@@ -35,6 +35,7 @@ function applyTheme(theme, persist = true) {
 function initTheme() {
   const initial = document.documentElement.dataset.theme || getPreferredTheme();
   applyTheme(initial, false);
+  document.documentElement.classList.add('theme-ready');
   const media = window.matchMedia('(prefers-color-scheme: dark)');
   media.addEventListener('change', (event) => {
     const stored = localStorage.getItem(themeKey);
