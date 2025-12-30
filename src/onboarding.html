@@ -26,10 +26,10 @@
   <div class="app-shell">
     <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
       <div class="flex items-center gap-3">
-        <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/10 text-lg font-bold">CAI</div>
+        <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 text-lg font-bold">CAI</div>
         <div>
-          <p class="text-sm uppercase tracking-[0.2em] text-gray-400" data-i18n="app.brand">CleanAI</p>
-          <p class="text-sm text-gray-300" data-i18n="onboarding.header.subtitle">Secure onboarding</p>
+          <p class="text-xs uppercase tracking-[0.2em] text-gray-400" data-i18n="app.brand">CleanAI</p>
+          <p class="text-sm text-muted-2" data-i18n="onboarding.header.subtitle">Secure onboarding</p>
         </div>
       </div>
       <div class="flex items-center gap-3 text-sm">
@@ -37,10 +37,10 @@
           <span class="theme-toggle__icon" aria-hidden="true">☀️</span>
           <span class="theme-toggle__label text-sm font-semibold">Light</span>
         </button>
-        <button id="language-launcher" type="button" class="rounded-full border border-white/10 px-4 py-2 text-gray-200 transition hover:border-white/30 hover:text-white" data-i18n="language.switch">Language</button>
-        <a class="rounded-full border border-white/10 px-4 py-2 text-gray-300 transition hover:border-white/30 hover:text-white" href="/book.html" data-i18n="onboarding.header.chat">Booking chat</a>
-        <span id="onboarding-user" class="text-gray-300"></span>
-        <button id="logout" class="rounded-full border border-white/10 px-4 py-2 text-gray-300 transition hover:border-white/30 hover:text-white" data-i18n="app.logout">Logout</button>
+        <button id="language-launcher" type="button" class="btn-ghost rounded-full px-4" data-i18n="language.switch">Language</button>
+        <a class="btn-secondary rounded-full px-4" href="/book.html" data-i18n="onboarding.header.chat">Booking chat</a>
+        <span id="onboarding-user" class="text-muted-2"></span>
+        <button id="logout" class="btn-ghost rounded-full px-4" data-i18n="app.logout">Logout</button>
       </div>
     </div>
   </div>
@@ -50,38 +50,38 @@
       <div class="space-y-6">
         <div>
           <p class="pill w-fit" data-i18n="onboarding.hero.badge">Step 1</p>
-          <h1 class="mt-2 text-3xl font-bold text-white sm:text-4xl" data-i18n="onboarding.hero.title">Who are you?</h1>
-          <p class="mt-2 text-gray-300" data-i18n="onboarding.hero.subtitle">Choose your role to unlock the right guided flow. We keep state locally for now and left a TODO for server persistence.</p>
+          <h1 class="mt-2 text-4xl font-bold sm:text-5xl" data-i18n="onboarding.hero.title">Who are you?</h1>
+          <p class="mt-2 text-muted-2" data-i18n="onboarding.hero.subtitle">Choose your role to unlock the right guided flow. We keep state locally for now and left a TODO for server persistence.</p>
         </div>
 
-        <div class="panel-strong rounded-3xl p-4 text-sm text-gray-200">
+        <div class="surface-card rounded-3xl p-4 text-sm text-muted-2">
           <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p class="font-semibold text-white" data-i18n="onboarding.role.title">Role selector</p>
-              <p class="text-xs text-gray-400" data-i18n="onboarding.role.subtitle">Cleaner / Private home / Office / Hotel choices save to your profile or local state.</p>
+              <p class="text-xs text-muted-2" data-i18n="onboarding.role.subtitle">Cleaner / Private home / Office / Hotel choices save to your profile or local state.</p>
             </div>
             <span class="badge badge-emerald" data-i18n="onboarding.role.badge">First-time friendly</span>
           </div>
         </div>
 
         <div class="grid gap-4 sm:grid-cols-2">
-          <button class="role-card rounded-3xl border border-white/10 bg-white/5 p-5 text-left" data-role="customer">
+          <button class="role-card glass-card rounded-3xl p-5 text-left" data-role="customer">
             <div class="flex items-center justify-between">
               <h2 class="text-lg font-semibold text-white" data-i18n="onboarding.role.customer.title">Customer</h2>
               <span class="pill" data-i18n="onboarding.role.customer.badge">Booking</span>
             </div>
-            <p class="mt-2 text-sm text-gray-300" data-i18n="onboarding.role.customer.text">Book home, office, or hotel cleaning in a structured chat with a live draft.</p>
+            <p class="mt-2 text-sm text-muted-2" data-i18n="onboarding.role.customer.text">Book home, office, or hotel cleaning in a structured chat with a live draft.</p>
           </button>
-          <button class="role-card rounded-3xl border border-white/10 bg-white/5 p-5 text-left" data-role="provider">
+          <button class="role-card glass-card rounded-3xl p-5 text-left" data-role="provider">
             <div class="flex items-center justify-between">
               <h2 class="text-lg font-semibold text-white" data-i18n="onboarding.role.provider.title">Cleaner / Provider</h2>
               <span class="pill" data-i18n="onboarding.role.provider.badge">Onboarding</span>
             </div>
-            <p class="mt-2 text-sm text-gray-300" data-i18n="onboarding.role.provider.text">Offer services with a 5-step wizard and approval gate before accessing jobs.</p>
+            <p class="mt-2 text-sm text-muted-2" data-i18n="onboarding.role.provider.text">Offer services with a 5-step wizard and approval gate before accessing jobs.</p>
           </button>
         </div>
 
-        <div id="category-section" class="hidden rounded-3xl border border-white/10 bg-white/5 p-5">
+        <div id="category-section" class="hidden glass-card rounded-3xl p-5">
           <div class="flex items-center justify-between">
             <div>
               <p class="pill w-fit" data-i18n="onboarding.category.badge">Customer</p>
@@ -94,7 +94,7 @@
             <button class="category-card rounded-2xl border border-white/10 bg-gray-900/70 px-4 py-3 text-left" data-category="office" data-i18n="onboarding.category.office">Office</button>
             <button class="category-card rounded-2xl border border-white/10 bg-gray-900/70 px-4 py-3 text-left" data-category="hotel" data-i18n="onboarding.category.hotel">Hotel</button>
           </div>
-          <p class="mt-3 text-sm text-gray-400" data-i18n="onboarding.category.helper">We keep your pick in localStorage for now. TODO: POST to user profile endpoint when available.</p>
+          <p class="mt-3 text-sm text-muted-2" data-i18n="onboarding.category.helper">We keep your pick in localStorage for now. TODO: POST to user profile endpoint when available.</p>
         </div>
 
         <div class="flex flex-wrap gap-3">
@@ -126,7 +126,7 @@
             <span id="provider-status" class="pill" data-i18n="status.draft">Draft</span>
           </div>
         </div>
-        <div class="mt-4 rounded-2xl border border-white/10 bg-gray-900/70 p-4 text-sm text-gray-300">
+        <div class="mt-4 rounded-2xl border border-white/10 bg-gray-900/70 p-4 text-sm text-muted-2">
           <p class="font-semibold text-white" data-i18n="onboarding.next.title">Next steps</p>
           <ul class="mt-2 list-disc list-inside space-y-1">
             <li data-i18n="onboarding.next.point1">Customers: select a category then jump into booking chat.</li>
